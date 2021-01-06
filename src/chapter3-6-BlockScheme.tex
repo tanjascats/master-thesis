@@ -1,0 +1,229 @@
+\section{Block oriented scheme}\label{subsec:block-oriented-scheme}
+The block-oriented fingerprinting scheme for relational databases is very much inspired by the block oriented scheme in spatial domain proposed in \cite{das2002robust}.
+This scheme divides the image to be fingerprinted into blocks of size $\beta\times\beta$ and permutes them in an order which is specific for every buyer. 
+Both permutation and the information of the buyer are stored in a database known to the owner only. 
+The scheme calculates the minimum and maximum intensities of the pixels in every block, and according to the corresponding bit of the fingerprint, increases (if the bit value is 1) or decreases (if the bit value is 0) intensities of the pixels in the block. 
+In this way, every buyer gets a marked image which is different for everyone. 
+Each marked image is different from the original, however, the changes are hardly perceptible to the human. 
+This ability to produce imperceptibly different copies of the original does not apply in the same way in relational databases. This is one of the reasons why multimedia fingerprinting techniques cannot be directly applied to relational datasets.
+
+In this section, the algorithms for the block-oriented scheme will be presented.
+Furthermore, we discuss the main properties and limitations of the scheme and present the analysis of quality effects of a process of embedding the fingerprint.
+
+\subsection{Algorithms}
+\begin{algorithm}
+  \KwIn{dataset $\mathcal{R}$ with scheme $(P, A_{0}, ..., A_{v-1})$, buyer's ID $n$}
+  \KwOut{fingerprinted dataset $\mathcal{R'}$ }
+  fingerprint of buyer $n$: $\mathcal{F}(\mathcal{K},n)=\mathcal{H}(\mathcal{K}|n)$
+  \\
+  choose a threshold $r_0$ for the pseudo-random number generator 
+  \\
+  divide dataset attribute values bits into blocks $B_i$ of size $\beta \times \beta$ \\
+  $i=0,j=0$ \\
+  \ForEach{block $B_i$}
+  {
+    $r_1$ = random($r_0$) \\
+    $x=H_1(r_1,n)$ mod $\beta$ \\
+    $r_2$ = random($r_1$) \\
+    $y=H_1(r_2,n)$ mod $\beta$ \\
+    $B_i(x,y)=B_i(x,y) \oplus f_j$ \\
+    $r_0=r_2$ \\
+    $i++, j++$ \\
+    \If{j==L}{j=0}
+  }
+  \Return{$\mathcal{R'}$}
+  \caption{Block Scheme: Insertion Algorithm}
+  \label{alg:block-insertion} 
+  
+\end{algorithm}
+
+\paragraph{Insertion}
+For fingerprint insertion, it is assumed that an input relational dataset contains primary key attribute \textit{P} and $v$ numerical attributes $A_0,...,A_{v-1}$.
+The pseudo-code is shown in \Cref{alg:block-insertion}.
+Every buyer has her identification number which we use for fingerprint embedding, and which is allowed to be publicly available, similar to the AK Scheme. 
+The fingerprint of a fixed length \textit{L} of a buyer \textit{n} is generated using a cryptographic hash function $\mathcal{H}$ as a hash of a concatenation of owner's secret key $\mathcal{K}$ and \textit{n}.
+Every buyer gets a unique value called \textit{threshold} (denoted as $r_0$) which is used as a seed for a pseudo-random sequence generator in the insertion algorithm.
+The term \textit{threshold} is used in the literature \cite{liu2004block}, however, it does not have any functionality of providing boundaries in the process as the naming would suggest. 
+It is solely used as a seed for the pseudorandom number generator. 
+To avoid storing the pairs of buyer's IDs and thresholds, in the adaptation of this scheme for this thesis we use a concatenation of owner's secret key and buyer's ID as a buyer's threshold value. 
+The next step is to create the binary image using the bits of values available for embedding the fingerprint and dividing it into blocks of size $\beta \times \beta$.
+\Cref{tab:binary-image} shows the example of creating the binary image from the sample dataset and dividing the binary image into blocks. 
+\begin{table}[ht]
+\centering
+\caption{Creating $\beta \times \beta$ blocks in binary image; $\beta = 2$, $\xi=3$}
+\label{tab:binary-image}
+\subfloat[Original dataset]{
+    \label{table:original-sample-dataset}
+    \begin{tabular}{|c|r|r|r|r|}
+        \hline
+        \textit{P} & $A_0$ & $A_1$ & $A_2$ & $A_3$\\
+        \hline\hline
+        0 & 32 & 2 & 14 & 165\\
+        \hline
+        1 & 26 & 1 & 15 & 171 \\
+        \hline
+        2 & 30 & 4 & 19 & 169 \\
+        \hline
+        3 & 23 & 4 & 22 & 183 \\
+        \hline
+    \end{tabular}
+}
+\subfloat[Binary representation of the original values]{
+    \label{table:binary-dataset-sample}
+    \begin{tabular}{|c|r|r|r|r|}
+        \hline
+        \textit{P} & $A_0$ & $A_1$ & $A_2$ & $A_3$ \\
+        \hline\hline
+         0 & 100\textcolor{blue}{000} & \textcolor{blue}{010} & 01\textcolor{blue}{110} & 10100\textcolor{blue}{101}\\
+         \hline
+         1 & 011\textcolor{blue}{010} & \textcolor{blue}{001} & 01\textcolor{blue}{111} & 10101\textcolor{blue}{011}\\
+         \hline
+         2 & 011\textcolor{blue}{110} & \textcolor{blue}{100} & 10\textcolor{blue}{011} & 10101\textcolor{blue}{001}\\
+         \hline
+         3 & 010\textcolor{blue}{111} & \textcolor{blue}{100} & 10\textcolor{blue}{110} & 10110\textcolor{blue}{111}\\
+         \hline
+    \end{tabular}
+}
+\\
+\subfloat[Binary image]{
+    \label{table:binary-image}
+    \begin{tabular}{|c|}
+        \hline
+         000010110101 \\
+         010001111011 \\
+         110100011001 \\
+         111100110111 \\
+         \hline
+    \end{tabular}
+}
+\subfloat[Binary image divided into blocks]{
+    \label{table:binary-image_blocks}
+    \begin{tabular}{|c|c|c|c|c|c|}
+        \hline
+         00 & 00 & 10 & 11 & 01 & 01 \\
+         01 & 00 & 01 & 11 & 10 & 11 \\
+         \hline
+         11 & 01 & 00 & 01 & 10 & 01 \\
+         11 & 11 & 00 & 11 & 01 & 11 \\
+         \hline
+    \end{tabular}
+}
+\end{table}
+\Cref{table:binary-dataset-sample} shows the sample dataset from \Cref{table:original-sample-dataset} with binary representation of its values. 
+In this example we allow three LSBs of all the values to be the candidates for marking ($\xi=3$). These bits are underlined in \Cref{table:binary-dataset-sample}. 
+If the binary representation of an original value does not reach $\xi$, the leading zeros are added.
+They are extracted to construct the binary image in \Cref{table:binary-image} which is divided into blocks of size $\beta \times \beta$, here $\beta=2$, shown in \Cref{table:binary-image_blocks}.
+This blocked image serves as a background structure for embedding the fingerprint bits. 
+Blocks are being marked in order such that the position $(x,y)$ of a bit within the block \textit{i} to be marked is generated by a pseudo-random number choice. 
+The random number generator is always seeded by the previously generated number, with the threshold $r_0$ being a seed for the first generation.
+The next generated number $r_1$ 
+The new value of the bit on the chosen position in the block is calculated as XOR of the original bit value and the fingerprint bit in the order.
+Fingerprint bits are embedded in sequential order and circularly, i.e. when the last fingerprint bit is embedded while there are still unmarked blocks left, the bits are being embedded all over from the start until all blocks are marked. 
+This means that under assumption that the length of the fingerprint is of form $\mathcal{F}=[f_0,f_1,...,f_31]$, blocks with the sequence number 0, 32, 64, ... will be marked with $f_0$, block with the sequence number 1, 33, 65, ... will be marked with $f_1$, etc.
+
+
+\begin{algorithm}
+  \KwIn{fingerprinted dataset $\mathcal{R'}$ with scheme $(P, A_0, ..., A_{v-1})$}
+  \KwOut{suspected buyer's ID $n$}
+  sort $\mathcal{R'}$ according to the primary key \textit{P} \\
+  divide bits of $\mathcal{R'}$ into blocks $\beta \times \beta$ \\
+  \ForEach{buyer \textit{n}}{
+    retrieve the corresponding $r_0$ \\
+    $F_{n,j}=0$ for all $j \in \{0,...,L-1\}$ \\
+    $i=0$ \\
+      \ForEach{block $B_i$}
+      {
+        $j = i \text{mod} L$ \\
+        $r_1$ = random($r_0$) \\
+        $x=H_1(r_1,n)$ mod $\beta$ \\
+        $r_2$ = random($r_1$) \\
+        $y=H_1(r_2,n)$ mod $\beta$ \\
+        $F_{n,j}$ += $\mathcal{R'}(B_i(x,y)) \oplus \mathcal{R}(B_i(x,y))$ if $\mathcal{R'}(B_i(x,y))$ is in $\mathcal{R}$\\
+        $r_0 = r_2$\\
+        $i++$ \\
+      }
+  }
+  \ForEach{buyer \textit{n}}{
+    fingerprint of buyer $n$: $\mathcal{F}(\mathcal{K},n)=\mathcal{H}(\mathcal{K}|n)$\\
+    \ForEach{$j \in \{0,...,L\}$}{
+        \uIf{$F_{n,j}/\omega \geq \tau$}{
+        $f_{n,j}'=1$}
+        \uElseIf{$1 - F_{n,j}/\omega \geq \tau$}{
+        $f_{n,j}'=0$}
+        \Else{
+        $f_{n,j}'=?$}
+    }
+    \If{$\mathcal{F}_n==\mathcal{F}_n'$}{
+    \Return{buyer \textit{n} is the source of leakage}}
+  }
+  \Return{none suspected}
+  \caption{Block Scheme: Detection Algorithm}
+  \label{alg:block-detection} 
+\end{algorithm}
+
+
+\paragraph{Detection}
+It is crucial to have the complete data in the suspicious database, therefore before blocking the bit image, it is necessary to properly order the tuples according to the primary key, as well as the attributes according to the original dataset and to fill out possibly missing tuples and attributes.
+To do so, the detection algorithm needs the access to the original dataset.
+The pseudo-code for the detection algorithm is shown in \Cref{alg:block-detection}.
+Once the dataset is complete, the next step is to divide the bit image made of LSBs into blocks of the same size as in the insertion phase, $\beta \times \beta$. 
+Then we retrieve the corresponding $r_0$ of each buyer that we use as an initial seed to random numbers generator. 
+The detection algorithm repeats steps from the insertion phase to locate the bits that are marked.
+The algorithm finds a position $(x,y)$ in each block $B_i$ where the mark is embedded (lines 7-11 of \Cref{alg:block-detection}).
+Since the bits in the insertion phase are marked with the result of $xor$ operation between the existing bit on the position $(x,y)$ of the $i$-th block and $j$-th fingerprint bit, in the detection phase the operation is inverted to obtain the fingerprint bit value (line 12). 
+Thus, the marked bit on the position $(x,y)$ of $B_i$ $xor$ the original bit on the position $(x,y)$ of $B_i$ will yield the value of the fingerprint bit $f_j$. 
+The variable $F_{n,j}$ counts how many times the fingerprint bit $f_j$ was detected to be 1.
+At the end of the extraction process, the fingerprint value of the potential fingerprint $\mathcal{F_n'}$ is decided according to the values of count variables. 
+If the value of a certain fingerprint bit is during the process counted to be 1 more than $\tau\omega$ times, then we set that fingerprint bit to be 1. 
+The analogy holds for deciding that fingerprint bit is 0. 
+The parameter $\tau \in [0.5,1)$ is the assurance of the detection process. 
+Choosing for example $\tau=0.5$ for the detection algorithm means that if count variable of the fingerprint bit $f_0$ counted more than 10 occurrences of value 1 out of 20 actual embeddings of the fingerprint it $f_0$ in the dataset, the algorithm would pass the condition in line 21 and the extracted value of the fingerprint bit $f_0$ will be 1.  
+
+\subsection{Assumptions and Properties}\label{subsec:assumptions-block}
+The most important parameter for the Block Scheme is $\beta$ that defines the size of the block. 
+Since every block is being marked in the insertion algorithm, $\beta$ defines the robustness of the fingerprint and the distortion of data. 
+In a dataset with $v$ attributes, $\eta$ tuples and $\xi$ LSBs available for marking, the number of blocks in the binary image of the dataset is:
+\begin{equation}
+    \frac{v\xi}{\beta} \cdot \frac{\eta}{\beta}
+\end{equation}
+The bits for marking are chosen pseudorandomly. In a dataset big enough and with a reasonable disparity of its values, we can assume a uniform distribution of values of the chosen bits. After a $xor$ operation between a specific fingerprint bit and a bit to be marked, there is $50\%$ chance the bit will change its original value. 
+Thus, in the fingerprinted dataset the number of changed values will be
+\begin{equation}\label{eq:block-changes}
+    \frac{1}{2} \cdot \frac{v\xi}{\beta} \cdot \frac{\eta}{\beta}
+\end{equation}
+
+One of the practical limitations occurs when creating blocks in the binary image of a dataset. 
+Let us assume the dataset has 5 attributes, each allowing three LSB-s for mark embedding, i.e. $5*3=15$ bits available for marking in the row.
+If we choose $\beta=4$, it will cause last three bits of the row never to be part of any block, hence, never marked. 
+\Cref{tab:block-creation-limitations} depicts the disputable situation.
+The binary image of data is divided into three blocks of size $4\times4$ and the remainder of size $3\times4$ is left out. 
+Generally, if possible, $\beta$ should be a divisor of $v\xi$ (number of attributes times number of LSBs available for marking) to avoid such a situation.
+Hence, $\beta \leq v \xi$.
+
+\begin{table}[ht]
+    \centering
+    \caption{Limitations in block creation}
+    \label{tab:block-creation-limitations}
+    \subfloat[Binary image]{
+        \begin{tabular}{|c|}
+            \hline
+            000010110101110 \\
+            010001111011011 \\
+            110100011001000 \\
+            111100110111110 \\
+            \hline
+        \end{tabular}
+    }
+    \subfloat[Binary image divided into three blocks and the remainder]{
+        \begin{tabular}{|c|c|c|||c|}
+            \hline
+             0000 & 1011 & 0101 & 110\\
+             0100 & 0111 & 1011 & 011\\
+             1101 & 0001 & 1001 & 000\\
+             1111 & 0011 & 0111 & 110\\
+             \hline
+        \end{tabular}
+    }
+\end{table}
+
+

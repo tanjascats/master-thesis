@@ -1,0 +1,133 @@
+\section{Impact of fingerprinting on Machine Learning models}\label{sec:Learning}
+In this section, we evaluate the utility of fingerprinted datasets by measuring the difference in the performance of classifiers for a predictive task, using the original and the fingerprinted dataset. 
+We use \textit{accuracy} and \textit{F1} as performance measures. 
+In Machine Learning, binary classification is the task of classifying the elements of a given set into two groups (also, categories or classes). 
+Given a classification of a specific data set, there are four basic combinations of the actual data class and the assigned class: true positives (TP; actual positive and predicted positive), false positives (FP; actual negative and predicted positive), true negatives (TN; actual negative and predicted negative) and false negatives (FN; actual positive and predicted negative), where "positive" and "negative" represent two classes. 
+These combinations can be arranged into a 2x2 contingency table as shown in \Cref{fig:confusion-matrix-binary}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{Figures/confusion.png}
+    \caption{Combinations of actual data classes and assigned classes in binary classification}
+    \label{fig:confusion-matrix-binary}
+\end{figure}
+
+A calculation of the classification accuracy and F1 score is based on a number of occurrences of each combination in the classification. 
+Accuracy is the ratio of a number of correct predictions to the total number of input samples.
+Accuracy of a binary classification is defined as:
+\begin{equation}\label{eq:accuracy-binary}
+    accuracy = \frac{TP+TN}{P+N}
+\end{equation}
+where $P = TP+FP$ and $N = TN+FN$.
+F1 score of binary classification is the harmonic average of the precision and the recall.
+Precision, recall and F1 score for the binary classification are defined as follows:
+\begin{equation}
+    precision = \frac{TP}{TP+FP}
+\end{equation}
+\begin{equation}
+    recall = \frac{TP}{TP+FN}
+\end{equation}
+\begin{equation}\label{eq:f1-binary}
+    F1 = 2 \cdot \frac{precision \cdot recall}{precision + recall}
+\end{equation}
+
+The metrics are shown graphically in \Cref{fig:performance-metrics}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{Figures/metrics.png}
+    \caption{Classification performance metrics}
+    \label{fig:performance-metrics}
+\end{figure}
+
+Multiclass (or multinomial) classification is the task of classifying the elements of a given set into three or more groups (categories, classes). 
+It can be denoted as a function $g(x)$ that on input $x$ returns one of the classes ${1,...,K}$.
+Similarly to the binary classification, we can distinguish the combinations of actual data class and the predicted one. In this case, we have true positives, false positives and false negatives associated with each class $i$.
+$\text{TP}_i$ denotes the instances from the class $i$ that are predicted to be in the class $i$, $\text{FP}_i$ are instances belonging to another class, falsely predicted to be in the class $i$, and $\text{FN}_i$ are the instances from the class $i$ falsely predicted to be in some other class. 
+
+The accuracy of the multinomial classification is calculated as:
+\begin{equation}\label{eq:accuracy-multiclass}
+    accuracy = \frac{1}{\eta}\cdot \sum_{i=1}^{K}\text{TP}_i
+\end{equation}
+where $\eta$ is a total number of data instances. Note that \Cref{eq:accuracy-multiclass} is the general form that applies to the binary classification as well. 
+
+For multiclass classification, precision and recall can be micro- or macro-averaged, therefore also can be F1 score.
+The micro-averaged precision and recall are defined as follows:
+\begin{equation}
+    precision_{micro} = \frac{\sum_{i=1}^{K}\text{TP}_i}{\sum_{i=1}^{K}\text{TP}_i + \text{FP}_i}
+\end{equation}
+\begin{equation}
+    recall_{micro} = \frac{\sum_{i=1}^{K}\text{TP}_i}{\sum_{i=1}^{K}\text{TP}_i + \text{FN}_i}
+\end{equation}
+Therefore, the micro F1 score is: 
+\begin{equation}
+    F1_{micro} = 2 \cdot \frac{precision_{micro} \cdot recall_{micro}}{precision_{micro} + recall_{micro}}
+\end{equation}
+If micro F1 is a large value, this indicates that a classifier performs well overall, however it is not sensitive to the performance of individual classes. 
+The macro-averaged precision and recall are:
+\begin{equation}
+    precision_{macro} = \frac{1}{K}\sum_{i=1}^{K}\frac{\text{TP}_i}{\text{TP}_i + \text{FP}_i}
+\end{equation}
+\begin{equation}
+    recall_{macro} = \frac{1}{K}\sum_{i=1}^{K}\frac{\text{TP}_i}{\text{TP}_i + \text{FN}_i}
+\end{equation}
+Hence, the macro F1 score is:
+\begin{equation}\label{eq:f1-macro}
+    F1_{macro} = 2 \cdot \frac{precision_{macro} \cdot recall_{macro}}{precision_{macro} + recall_{macro}}
+\end{equation}
+A large macro F1 suggests that the classifier performs well for each individual class. The macro-average is therefore more suitable for data with an imbalanced class distribution.
+All of the above metrics reach their best value at 1 for the perfect classifier and worst at 0.
+
+\paragraph{Experimental setup}
+We used three datasets for the experiments - the Forest dataset, the Adult dataset and the Credit dataset. Therefore, three different classifications have been analysed. 
+In the Forest dataset, the target attribute is \textit{covertype} with 7 values, thus we are solving the multiclass classification problem. 
+The accuracy is calculated as in \Cref{eq:accuracy-multiclass}. Furthermore, we choose to use macro averages for calculating the F1 score (\Cref{eq:f1-macro}) to avoid the misleading nature of micro averages when the class distribution is imbalanced.
+
+In the Adult dataset, we are predicting the binary attribute \textit{income}. In the German Credit dataset, we are as well predicting the binary target attribute that classifies the data instance as good or bad credit risk. The binary classification is being performed and analysed for these two datasets and accordingly, the classification accuracy and F1 are calculated as \Cref{eq:accuracy-binary} and \Cref{eq:f1-binary}.
+
+For all of our experiments, we use 10-fold cross-validation to evaluate Machine Learning models.
+$k$-fold cross-validation is a resampling procedure used in Machine Learning to estimate the skill of a Machine Learning model on unseen data.
+It generally results in a less biased or less optimistic estimate of the model skill than other methods, such as a simple train/test split. 
+The procedure starts by shuffling the dataset randomly and splitting it into $k$ groups. In our experiments $k=10$. 
+Each unique group is taken as a hold out (test dataset) while the remaining $k-1$ groups are taken as a training dataset.
+It fits a model on the training set and evaluates it on the test set, retaining the evaluation score for that group.
+At the end, we summarise the skill of the model using the sample of model evaluation scores.
+In the experiments, we record the average of these scores. 
+
+Generally, the goal was not to build models with best predictions but to compare the effectiveness of the fingerprinted data compared to the original.
+Therefore, there is no advanced parameter optimisation included nor we dive into more complicated feature selection for building models, as it would shift the focus from the main goal. 
+Still, we wanted to achieve the model performance levels rather close to the benchmark solutions available from numerous online sources\footnote{\url{https://www.kaggle.com/wenruliu/adult-income-dataset/kernels}}\footnote{\url{https://www.kaggle.com/c/forest-cover-type-prediction/kernels}} (the chosen datasets and the correlated classification problems are well known in the Machine Learning community).
+Therefore, it was important to find good hyperparameters for each of the classification tasks and each classifier.
+One possible solution besides the pure manual tuning is a random search over hyperparameters.
+We set up a grid of hyperparameter values and select a limited number of random combinations to train the model and score on validations data.
+This way we choose the combination of parameters giving the best score for our model.
+
+We use Randomized Search with 10 iterations from the Python scikit-learn package\footnote{\url{https://scikit-learn.org/stable/}} for tuning most important hyperparameters. 
+Evaluation within the random search is done using 10-fold cross-validation and F1 score (macro F1 in case of a multiclass classification). 
+
+Finally, for our experiments, we use the following classifiers, all implemented in the Python scikit-learn package:
+\begin{itemize}
+    \item Decision Tree
+    \item k-NN (k Nearest Neighbours)
+    \item Logistic regression
+    \item Random Forest
+    \item Gradient Boosting
+\end{itemize}
+
+The experimental process in the following sections has the following steps:
+\begin{enumerate}
+    \item Use random search to tune the hyperparameters of the Decision Tree, k-NN, Logistic Regression, Random Forest and Gradient Boosting classifiers. In some of the experiments, we use only the subset of the classifiers above. 
+    \item Train the model with the original dataset and score the classification accuracy and F1
+    \item For each fingerprinting parameter combination $(\gamma, \xi)$ train the model with the fingerprinted dataset and score the classification accuracy and F1. Set the hyperparameters according to step 1.  
+    \item Record the differences in the performance measures
+    \item Steps 3 and 4 are repeated 10 times to get the average values. In every experiment, we fingerprint the data with a random choice of buyer's id and secret key.
+    
+\end{enumerate}
+
+
+\input{chapter5-2-1-MachineLearning-Forest.tex}
+
+\input{chapter5-2-2-MachineLearning-Adult.tex}
+
+\input{chapter5-2-3-MachineLearning-German.tex}
+

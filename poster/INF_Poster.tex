@@ -1,0 +1,253 @@
+% $Id: INF_Poster_example.tex 7714 2011-08-31 17:34:46Z tkren $
+%
+% TU Wien - Faculty of Informatics
+% poster template
+%
+% This template is using the beamer document class and beamerposter package, see
+% <http://www.ctan.org/tex-archive/macros/latex/contrib/beamer/>
+% <http://www.ctan.org/tex-archive/macros/latex/contrib/beamerposter/>
+% <http://www-i6.informatik.rwth-aachen.de/~dreuw/latexbeamerposter.php>
+%
+% For questions and comments send an email to
+% Thomas Krennwallner <tkren@kr.tuwien.ac.at>
+%
+
+\documentclass[final,hyperref={pdfpagelabels=true}]{beamer}
+
+\usepackage{TUINFPST}
+\usepackage{graphicx,wrapfig}
+
+
+\usepackage{lipsum}
+\definecolor{myred}{HTML}{C93948}
+ 
+%\title[Computational Intelligence]{Interactive Computer Generated Architecture}
+% if you have a long title looking squeezed on the poster, just force
+% some distance:
+\title[Computational Intelligence]{Fingerprinting Relational Databases; Quality Evaluation and Impact on Learning Tasks}
+% if you have a long title looking squeezed on the poster, just force
+% some distance:
+% \title[Computational Intelligence]{%
+%   Integration of Conjunctive Queries over \\[0.2\baselineskip]%
+%   Description Logics into HEX-Programs %\\[0.2\baselineskip]%
+% }
+\author[ta.sarcevic@gmail.com]{Tanja Šarčević}
+\institute[]{%
+  Technische Universit{\"a}t Wien\\[0.25\baselineskip]
+  Institut f{\"u}r Informationssysteme\\[0.25\baselineskip]
+  Arbeitsbereich: Information \& Software Engineering Group\\[0.25\baselineskip]
+  Betreuer: Ao.Univ.-Prof. Dr. Dipl.-Ing. Andreas Rauber
+}
+\titlegraphic{\includegraphics[height=52mm]{E194-01.eps}}
+\date[\today]{\today}
+\subject{epilog}
+%\keywords{my kwd1, my kwd2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Display a grid to help align images 
+%\beamertemplategridbackground[12.7mm]
+
+% play around with the background colors
+% \setbeamercolor{background canvas}{bg=yellow}
+
+% use a background picture
+% \usebackgroundtemplate{%
+%   \includegraphics[width=\paperwidth]{logo_KBS_2_CMYK}
+% }
+
+% play around with block colors
+\setbeamercolor{block body}{fg=black,bg=white}
+\setbeamercolor{block title}{fg=TuWienBlue,bg=white}
+
+\setbeamertemplate{block begin}{
+  \begin{beamercolorbox}{block title}%
+    \begin{tikzpicture}%
+      \node[draw,rectangle,line width=3pt,rounded corners=8pt,inner sep=0pt]{%
+        \begin{minipage}[c][2.5cm]{\linewidth}
+          \centering\textbf{\insertblocktitle}
+        \end{minipage}
+      };
+    \end{tikzpicture}%
+  \end{beamercolorbox}
+  %\vspace*{0.05cm}
+  \begin{beamercolorbox}{block body}%
+  \end{beamercolorbox}
+}
+
+\setbeamertemplate{block end}{
+  \vspace{1cm}
+}
+
+% setup postit
+\setbeamercolor{postit}{fg=black,bg=yellow} 
+\newenvironment{postit}
+{\begin{beamercolorbox}[sep=1em,wd=7cm]{postit}}
+{\end{beamercolorbox}}
+
+
+% for crop marks, uncomment the following line
+%\usepackage[cross,width=88truecm,height=123truecm,center]{crop}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+% We have a single poster frame.
+\begin{frame}
+\begin{block}{Motivation and Problem Statement}
+    \begin{columns}[t]
+        \begin{column}{.16\textwidth}
+        \begin{figure}
+            \centering\raisebox{0pt}{\raisebox{0pt}[\dimexpr\height-50pt]{
+                \includegraphics[width=0.89\textwidth]{fingerprint.jpg}
+                }}
+        \end{figure}
+        \end{column}
+        \begin{column}{.79\textwidth}
+        Fingerprinting digital data is an ownership attribution mechanism which can be seen as a personalised version of generic watermarking. The fingerprinting techniques generally embed a pattern in the data, i.e. they distort the original data set to a certain extent. The pattern identifies the owner and the receiver of the specific data copy. 
+        The type of data in the data set can be a crucial point for evaluating fingerprinting scheme effectiveness. Categorical data are shown to give rise to more problems with embedding the fingerprint compared to numerical data, yet the appropriate fingerprinting scheme for categorical data is necessary; otherwise, the domain of fingerprinting applications is very limited. We propose two techniques for categorical data and perform a detailed robustness and utility analysis for three known techniques.
+        \end{column}
+        \end{columns}
+      \end{block}
+      
+      \begin{block}{Methodology}
+        \begin{figure}
+            \centering
+            \includegraphics[width=0.9\textwidth]{methodology.PNG}
+        \end{figure}
+      \end{block}
+  \begin{columns}[t]
+    % ---------------------------------------------------------%
+    % Set up a column
+    \begin{column}{.45\textwidth}
+
+      \begin{block}{General workflow and design of fingerprinting schemes}
+            \begin{figure}
+                \centering
+                \includegraphics[width=\textwidth]{left-side.png}
+            \end{figure}
+            \begin{columns}
+            \begin{column}{.5\textwidth}
+            \small
+            \begin{itemize}
+                \item Blind scheme
+                \item Resulting in possible semantic inconsistencies in the 
+            \end{itemize}
+            \bigskip
+            \bigskip
+            \end{column}
+            \begin{column}{.5\textwidth}
+            \small
+            \begin{itemize}
+                \item Non-blind scheme
+                \item Resulting data does not consist of additional outliers and impossible combinations of attribute values
+            \end{itemize}
+            \end{column}
+            \end{columns}
+      \end{block}
+     
+    \end{column}
+    
+    % ---------------------------------------------------------%
+    % end the column
+
+    % ---------------------------------------------------------%
+    % Set up a column 
+    \begin{column}{.45\textwidth}
+
+      \begin{block}{Robustness evaluation}
+        \begin{columns}
+            \begin{column}{.49\textwidth}
+            \centering
+            \textcolor{myred}{\textbf{Additive attack}}
+                \begin{figure}
+                    \centering \includegraphics[width=\textwidth]{additive_poster.png}
+                \end{figure}
+            \end{column}
+            
+            \begin{column}{.49\textwidth}
+            \centering
+            \textcolor{myred}{\textbf{Misdiagnosis False Hit}}
+            \begin{figure}
+                \centering
+                \includegraphics[width=\textwidth]{misdiagnosis_poster.png}
+            \end{figure}
+        
+            \end{column}
+        \end{columns}
+        \bigskip
+        \bigskip
+        \bigskip
+        \small
+        The schemes with less marks embedded in data are generally more susceptible to attacks. The main step for gaining robustness is choosing smaller fingerprint and more marks in a marking pattern.
+        \bigskip
+        \bigskip
+        \begin{columns}
+            \begin{column}{.49\textwidth}
+            \centering
+            \textcolor{myred}{\textbf{Subset attack}}
+                \begin{figure}
+                    \centering
+                    \includegraphics[width=\textwidth]{subset_poster.png}
+                \end{figure}
+            \end{column}
+            
+            \begin{column}{.49\textwidth}\centering
+            \textcolor{myred}{\textbf{Bit-flipping Attack}}
+            \begin{figure}
+                \centering
+                \includegraphics[width=\textwidth]{bit-flipping_poster.PNG}
+            \end{figure}
+            \end{column}
+        \end{columns}
+      \end{block}
+
+      \begin{block}{Utility evaluation}
+      \begin{columns}
+        \begin{column}{.49\textwidth}
+        \begin{figure}
+            \centering
+            \includegraphics[width=\textwidth]{classification_poster.png}
+        \end{figure}
+        \end{column}
+        \begin{column}{.49\textwidth}
+        \small
+            \textbf{EXPERIMENTAL SETUP}\\
+            \textcolor{TuWienBlue}{Datasets}: Forest Cover Type, Adult (Census), German Credit Data\\
+            \textcolor{TuWienBlue}{Classifiers}: Decision Tree, Random Forest, Logistic Regression, Gradient Boosting, k-NN\\
+            \textcolor{TuWienBlue}{Performance metrics}: $\text{F}_1$ score, accuracy
+        \end{column}
+      \end{columns}
+      \bigskip
+      \small
+      The representative results with Random Forest show rather small performance decreases, up to 1.5\%. The performance drop is bigger for datasets with more introduced marks, and for small datasets in general.
+      \end{block}
+      
+      \begin{block}{References}
+      \scriptsize
+        \nocite{li2005fingerprinting}
+        \nocite{liu2004block}
+        \nocite{guo2006fingerprinting}
+        \nocite{sarcevic2019evaluation}
+        \bibliographystyle{ieeetr}
+        \bibliography{references}
+      \end{block}
+
+    \end{column}
+    % ---------------------------------------------------------%
+    % end the column
+  \end{columns}
+  
+\end{frame}
+
+\end{document}
+
+%%% Local Variables:
+%%% TeX-PDF-mode: t
+%%% TeX-debug-bad-boxes: t
+%%% TeX-master: t
+%%% TeX-parse-self: t
+%%% TeX-auto-save: t
+%%% reftex-plug-into-AUCTeX: t
+%%% End:

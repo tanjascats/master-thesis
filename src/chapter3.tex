@@ -1,0 +1,141 @@
+\chapter{Fingerprinting techniques}\label{sec:Fingerprinting}
+Fingerprinting is a technique that embeds a piece of information into the data to provide the identification of the owner of data and the source of potential unauthorised data leakage. 
+Fingerprint combines secret owner-specific and buyer-specific information and is embedded in the dataset. 
+Every buyer has her fingerprint, therefore every dataset fingerprinted and distributed by the owner is different from each other.
+By detecting the fingerprint within the dataset, the owner can trace the buyer of that instance of the dataset. 
+The fingerprinting techniques usually contain two main algorithms: fingerprint insertion and fingerprint detection. 
+In the fingerprint insertion, the fingerprint of a buyer is embedded into the dataset.
+Fingerprint detection strives for detecting the fingerprint in a suspicious dataset to connect it with the buyer who distributed the dataset without the authorisation.
+Detection could be disrupted by malicious attempts of the buyer to remove the fingerprint from the data, but also by benign changes in the dataset. 
+These attacks and fingerprint resistance to them will be addressed in \Cref{sec:Robustness}.
+
+
+\section{Notation and parameters}
+In the following, several different fingerprinting techniques are discussed in detail. 
+In this section, we set the common notation and explain the parameters used in the techniques. 
+The dataset schema is denoted by $\mathcal{R}(P,A_0,...,A_{v-1})$ where $\mathcal{R}$ is a database relation, \textit{P} is the primary key attribute, and $A_0,...,A_{v-1}$ are $v$ attributes that will be used for fingerprinting. 
+$\eta$ is a notion of number of tuples (rows/entries) in the dataset. 
+As the fingerprinting techniques embed the fingerprint by changing the attribute values, we define the parameter $\xi$ which denotes the number of least significant bits (LSBs) that can be used to embed the fingerprint. \\
+Let \textit{N} be the number of buyers to whom the dataset is being distributed. 
+To each of the buyers, a unique fingerprint will be assigned. 
+Every fingerprint $\Gamma = (f_0,...,f_{L-1})$ is a binary string of length $L \geq logN$. \\
+Besides the buyer's fingerprint, the owner-specific information has to be embedded in the dataset to ensure the ownership protection and make it possible only for the data owner to detect the fingerprint from the fingerprinted dataset. 
+This information is usually a secret key $\mathcal{K}$ - a binary string known only to the dataset owner.
+\Cref{table:notation} contains the notation that will be used in the remainder of this thesis unless otherwise stated.
+
+\begin{table}
+\centering
+\caption{The notions of the most common parameters}
+\label{table:notation}
+\begin{tabular}{|c | c|} 
+ \hline
+ Notation & Meaning \\ 
+ \hline\hline
+ $\mathcal{R}$ & database relation \\
+ \hline
+ \textit{P} & primary key attribute \\
+ \hline
+ $A_i$ & attribute $i$ \\
+ \hline
+ \textit{v} & number of attributes \\
+ \hline
+ $\eta$ & number of tuples  \\
+ \hline
+ $\mathcal{K}$ & owner's secret key  \\
+ \hline
+ $\xi$ & number of least significant bits \\ 
+ \hline
+ $1/\gamma$ & ratio of tuples to be marked\\
+ \hline
+ \textit{N} & number of buyers \\
+ \hline
+ \textit{L} & length of fingerprint \\
+ \hline
+ $\omega_i$ & number of embeddings of a fingerprint bit $i$ \\
+ \hline
+ $\omega$ & total number of marks \\
+ \hline
+\end{tabular}
+\end{table}
+
+\section{Prerequisites}
+Before discussing the specific schemes and algorithms used for fingerprinting relational databases, it is necessary to mention auxiliary functions and algorithms required to achieve the goal of robust fingerprints. 
+Cryptographic pseudo-random sequence generator and cryptographic hash function, discussed in the following subsections, both ensure that neither the fingerprint nor any part of fingerprinting scheme get disclosed or recreated by an unauthorised user.
+This stated, their usage is crucial for the owner's rights protection.
+
+\subsection{Cryptographic pseudo-random sequence generator}
+A cryptographically secure pseudorandom number generator (CSPRNG) is an algorithm for creating a sequence of random numbers with properties suitable for use in cryptography.
+The CSPRNG-generated sequence is not truly random, because it is completely determined by the initial value called \textit{seed}. 
+The requirements of CSPRNG fall into two groups: 
+\begin{itemize}
+    \item They pass statistical randomness tests. 
+    
+    A generator passing the \textit{next-bit test} will pass all other polynomial-time statistical tests for randomness (proof by Andrew Yao in 1982 \cite{yao1982theory}). We say that a sequence of bits passes the next-bit test for at any position $i$ in the sequence, if any attacker who knows the $i$ first bits (but not the seed) cannot predict the $(i+1)$st with reasonable computational power.
+    
+    \item They resist a serious attack, even when part of their initial or running state becomes available to an attacker.
+    
+    If part or all of CSPRNG's state has been revealed (or guessed correctly), it should be impossible to reconstruct the stream of random numbers before the revelation. Additionally, if there is an entropy input while running, it should be unfeasible to use knowledge of the input's state to predict future conditions of the CSPRNG state.
+\end{itemize}
+
+There is several designed practical CSPRNGs including the Yarrow Algorithm \cite{kelsey1999yarrow} incorporated in iOS and macOS, its successor Fortuna \cite{ferguson2015generating} used in FreeBSD, CryptGenRandom \cite{cryptgenrandom} included in Microsoft's Cryptographic Application Programming Interface, etc.
+
+For the analysis in the thesis, we denote CSPRNG with $\mathcal{S}$, where $\mathcal{S}_i$ denotes the $i^{th}$ random number of the sequence.
+
+\subsection{Cryptographic hash function}
+The cryptographic hash function is a deterministic function that takes a string input of any length and returns a fixed-size string value. 
+The returned value is called "hash value". 
+In literature the hash value can be also referred to as "digest", "checksum" or "digital fingerprint" (the word \textit{fingerprint} is here used in the different context than the \textit{fingerprint} used as a topic of this thesis).
+The hash function has three main properties:
+\begin{itemize}
+    \item It is easy to calculate a hash value for any given input string.
+    \item It is computationally difficult to calculate an input that has given a certain hash value.
+    \item It is extremely unlikely that two different inputs, even remotely different, have the same hash value.
+\end{itemize}
+
+While the regular hash functions aim to, most importantly, avoid the collision of hash values for non-malicious input, the above properties are much strongly guaranteed for cryptographic hash functions.  
+The hash value serves as a "signature" for the input provided.
+Only the person knowing the original input value can easily check the matching hash function. 
+However, knowing only the hash value, one is unable to do the inverse and find out the original input value. 
+If either finding a string that matches a given hash value or finding two different inputs that have the same hash value is computationally feasible, then a cryptographic function is not considered secure from a cryptographic point of view.
+
+Most commonly used cryptographic hash functions are MD5 \cite{rivest1992md5} and SHA-1 \cite{eastlake2001us}.
+
+
+\section{Fingerprint codes}
+A fingerprinting scheme assigns a specific fingerprint to each of the \textit{N} buyers.
+A fingerprint is a unique binary string of length \textit{L} known only by the database owner which is used to trace a specific owner. 
+Storing the mapping of a recipient to her fingerprint is additional data that requires additional protection measures to be protected against attacks.  
+To avoid this, the owner uses a cryptographic hash function $\mathcal{H}$ to produce each buyer's fingerprint instead.
+In the fingerprinting techniques presented in the following sections, each fingerprint $\mathcal{F}$ is produced as a hash value of the concatenation of owner's secret key $\mathcal{K}$ and buyer's identification number \textit{id}:
+\begin{equation}
+    \mathcal{F}(\mathcal{K},id)=(f_0,...,f_{L-1})=\mathcal{H}(\mathcal{K}|id)
+\end{equation}
+where buyer's identification number can be publicly accessible.
+This way only the owner who knows both secret key $\mathcal{K}$ and identification number \textit{id} can produce the hash value - the fingerprint of a specific buyer.
+
+\paragraph{Collusion resistant codes}
+Fingerprinting schemes are susceptible to collusion attacks where users with multiple copies of the same dataset but different embedded fingerprints work in coalition to create a useful data copy that does not implicate any member of the coalition. 
+Collusion attacks will be thoroughly discussed in \Cref{subsec:collusion}, while in this section we cover collusion resistant codes.
+Collusion resistant fingerprinting codes have been studied extensively in the literature \cite{boneh1998collusion, guth1999error, pfitzmann1999coin, pfitzmann1996asymmetric, yacobi2001improved}. 
+One of the well-known codes is proposed by Boneh and Shaw \cite{boneh1998collusion} (this code is referred to as \textit{BoSh code} in the remainder of the thesis). 
+The effectiveness of the BoSh code relies on the assumption that colluding buyers can detect only the fingerprint bits in which their copies differ, otherwise a fingerprint bit cannot be detected.
+For example, two buyers with their own fingerprinted datasets can easily compare their datasets and remove or change the values that differ between their copies. 
+Authors of \cite{boneh1998collusion} call refer to this as the "Marking Assumption". 
+The main property that codes should satisfy is that users cannot change the state of an undetected bit without rendering the dataset useless. 
+This small amount of information where the buyers' marks agree is used to trace the copies they generate back to either of them.
+A collusion resistant code is expected to have two properties well-elaborated:
+\begin{itemize}
+    \item $c$-frameproof code, i.e. a coalition of at most $c$ users cannot frame a user not in the coalition even all user fingerprints are known to the users
+    \item $c$-secure code, i.e. there exists a tracing algorithm that on input $x$ must output a single member of the coalition of at most $c$ users, where the input $x$ is the new mark extracted by the fingerprint extraction algorithm that was generated by the coalition
+\end{itemize}
+The usage of the BoSh code is discussed in \Cref{subsec:ak} as a part of the collusion-resistant version of the scheme. 
+
+\input{chapter3-5-AK-Scheme.tex}
+
+\input{chapter3-6-BlockScheme.tex}
+
+\input{chapter3-7-TwoLevelFP.tex}
+
+\input{chapter3-8-Categorical.tex}
+
+\input{Chapter3-Summary.tex}

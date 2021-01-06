@@ -1,0 +1,80 @@
+\section{Misdiagnosis false hit}
+In this section, we will analyse the misdiagnosis false hit rate of different fingerprinting schemes. 
+This robustness measure differs from the others in a way that it does not measure the success of a malicious attack or benign updates on the dataset. 
+In contrast to the ability of the detection algorithm to detect the correct fingerprint from the pirated (and fingerprinted) data, the fingerprinting scheme may also, purely by chance, extract a valid but incorrect fingerprint from unmarked data.
+This phenomenon is measured by misdiagnosis false hit rate.
+
+\subsection{AK Scheme}\label{subsubsec:misdiagnosis-ak}
+Assume that the detection algorithm from the unmarked data extracts a potential fingerprint $f=(f_0,...,f_{L-1})$, i.e. some bit string of length \textit{L}. 
+Furthermore, assuming that a single fingerprint bit $f_i$ is extracted from the dataset multiple times, it is decided to be a single value (0 or 1) if that value is extracted more than $\tau\omega_i$, where $\omega_i$ is the number of times $f_i$ is extracted.
+Due to the use of pseudo-random mask bits in this scheme, each time $f_i$ is extracted, it will be extracted as 0 or 1 with probability 0.5, which is modelled as an independent Bernoulli trial.
+Once when the detection algorithm is done processing the dataset, the probability of the value of one fingerprint bit $f_i$ of the extracted potential fingerprint $f$ being 0 is $B(\lfloor\tau\omega_i\rfloor;\omega_i,0.5)$, and the same probability stands for $f_i$ being 1. 
+Therefore, the algorithm detects the potential fingerprint with the probability $\prod_{i=0}^{L-1}2B(\lfloor\tau\omega_i\rfloor;\omega_i,0.5)$.
+The probability that the extracted fingerprint is matching one of the $N$ valid ones equals to choosing $N$ bit strings out of $2^L$ possible ones: $N/2^L$.
+Now the overall misdiagnosis false hit rate is 
+\begin{equation}
+    fh^D = \frac{N}{2^L}\prod_{i=0}^{L-1}2B(\lfloor\tau\omega_i\rfloor;\omega_i,0.5)
+\end{equation}
+and after $2^L$ cancels out 
+\begin{equation}
+    fh^D = N\prod_{i=0}^{L-1}B(\lfloor\tau\omega_i\rfloor;\omega_i,0.5)
+\end{equation}
+The misdiagnosis false hit rate is exponentially dependant on length of the fingerprint \textit{L}. The rate can be reduced by increasing \textit{L}. \Cref{table:misdiagnosis-fh} shows the misdiagnosis false hit rate under different values of $L$ and $\omega_i \approx \{100,50\}: \forall i \in \{0,...,L-1\}$, where $N=100$ and $\tau=0.5$ are fixed values.
+
+\begin{table}[ht]
+\centering
+\caption{Misdiagnosis false hit rate for the AK Scheme}
+\label{table:misdiagnosis-fh}
+\begin{tabular}{|c|c|c|c|c|c|} 
+\hline
+ $L$ & 8 & 16 & 32 & 64 & 128 \\
+ \hline
+ $fh^D (\omega_i=100)$ & 0.7208 & 0.0052 & $2.70\times 10^{-7}$ & $7.30\times 10^{-16}$ & $5.31\times 10^{-33}$ \\
+ \hline
+ $fh^D (\omega_i=50)$ & 0.9151 & 0.0084 & $7.01\times 10^{-7}$ & $4.92\times 10^{-15}$ & $2.42\times 10^{-31}$\\
+ \hline
+\end{tabular}
+\end{table}
+
+We can see that for $L \gg log(N)$ we can almost completely avoid the misdiagnosis false hit ($fh^D\simeq0$) and by this rule, we will be choosing the values for $L$ in further analysis and experiments in this thesis.
+
+\subsection{Block Scheme}
+The probabilistic model for the misdiagnosis false hit is the same as in the case of AK Scheme, so for analysis on this topic, we refer to \Cref{subsubsec:misdiagnosis-ak}.
+
+\subsection{Two-level Fingerprinting Scheme}
+Two-level Fingerprinting Scheme detects the detected fingerprint in multiple phases. 
+The extraction starts with ownership verification followed by fingerprint extraction and fingerprint verification. 
+The detection algorithm goes to the extraction phase only if the ownership is verified, suggesting that first, we have to take into account the probability of passing the first phase of detection. 
+
+Let us assume that the input to the detection algorithm is an unmarked dataset of size $\eta$. 
+We set $\alpha_1=\alpha_2=\alpha_3=0.01$ and choose arbitrary $\gamma_1$ and $\gamma_2$. 
+The subroutine \textit{detect} \ref{alg:detect-subroutine} counts the amount of tuples that should have been marked with 1 ($total\_count_1$) and with 0 ($total\_count_0$) in the embedding process.
+Due to uniformly distributed output of the hash function $\mathcal{H}$, the approximate value of both $total\_count_1$ and $total\_count_0$ will be:
+\begin{equation}
+    total\_count_1 \approx total\_count_0 \approx \eta/\gamma_1
+\end{equation}
+Furthermore, the subroutine counts number of matches of chosen bits with the suggested values ($match\_count_1$ and $match\_count_0$).
+Again, assuming the uniformity of the hash function:
+\begin{align}
+    &match\_count_1 \approx total\_count_1 / 2 \\
+    &match\_count_0 \approx total\_count_0 / 2
+\end{align}
+
+To pass the ownership verification test, the total number of matches has to satisfy the condition:
+\begin{equation}
+    match\_count > threshold(total\_count, \alpha_1)
+\end{equation}
+where $match\_count = match\_count_1 + match\_count_0$ and $total\_count = total\_count_1 + total\_count_0$.
+Therefore, for the ownership verification with confidence 99\% the following has to hold:
+\begin{equation}
+    \frac{threshold(total\_count, 0.01)}{total\_count} < 0.5
+\end{equation} 
+The value of this portion is shown in \Cref{fig:threshold-ownership} with the solid blue line. 
+Even for very big $total\_count$, the threshold portion very slowly approaches 0.5. 
+Thus, the ownership is very unlikely to be falsely verified in the unmarked dataset.
+
+The extraction algorithm does not continue if ownership is not verified, therefore the scheme is extremely robust against misdiagnosis false hit.
+
+
+\subsection{Fingerprinting scheme for categorical data}
+The probabilistic model for the misdiagnosis false hit for the fingerprinting scheme for the categorical data is the same as in the case of AK Scheme. For the analysis, we refer to \Cref{subsubsec:misdiagnosis-ak}.

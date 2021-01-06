@@ -1,0 +1,112 @@
+% Forest dataset
+\subsection{Forest Cover Type}
+The first set of experiments is made using the biggest of the three datasets - Forest Cover Type. 
+We use the AK Scheme for fingerprinting the numerical attributes of the dataset.
+The target attribute is \textit{covertype} and all the others are used as an input for a prediction. 
+We use the following classifiers and set the following hyperparameters:
+    \begin{itemize}
+        \item Decision Tree: $max\_depth=5$, $criterion=entropy$
+        \item Logistic Regression: $C=100$
+        \item Random Forest: $n\_estimators=100$
+    \end{itemize}
+    The other hyperparameters are set to default values from the scikit-learn implementations of the classifiers.
+
+The average differences are shown in \Cref{tab:dt_forest_diff,tab:lr_forest_diff,tab:rf_forest_diff} for Decision Tree, Logistic Regression and Random Forest, respectively.
+
+\begin{table}[ht]
+    \centering
+    \caption{Effects on F1 score and classification accuracy of a Decision Tree model trained with the Forest Cover Type dataset}
+    \label{tab:dt_forest_diff}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{|l|rr|rr|rr||rr|}
+    \hline
+        &  \multicolumn{2}{c|}{$\xi=2$} &  \multicolumn{2}{c|}{$\xi=4$} &  \multicolumn{2}{c||}{$\xi=6$} & 
+        \multicolumn{2}{c|}{average} \\
+        & F1 & acc. & F1 & acc.  & F1 & acc. & F1 & acc. \\
+        \hline
+         $\gamma=100$ & 0\% & 0\% & 0\% & \textcolor{red}{-0.01\%} & 0\% & \textcolor{red}{-0.01\%} & 0\% & \textcolor{red}{-0.01\%}\\
+         \hline
+         $\gamma=50$ & 0\% & \textcolor{red}{-0.02\%} & 0\% & 0\% & 0\% & +0.01\% & 0\% & 0\%\\
+         \hline
+         $\gamma=25$ & 0\% & \textcolor{red}{-0.02\%} & +0.02\% & +0.01\% & \textcolor{red}{-0.03\%} & \textcolor{red}{-0.01\%} & 0\% & \textcolor{red}{-0.01\%}\\
+         \hline
+         $\gamma=12$ & \textcolor{red}{-0.01\%} & \textcolor{red}{-0.02\%} & \textcolor{red}{-0.01\%} & 0\% & \textcolor{red}{-0.01\%} & \textcolor{red}{-0.10\%} & \textcolor{red}{-0.01\%} & \textcolor{red}{-0.04\%}\\
+         \hline
+         $\gamma=6$ & \textcolor{red}{-0.01\%} & 0\% & \textcolor{red}{-0.04\%} & \textcolor{red}{-0.01\%} & \textcolor{red}{-0.19\%} & \textcolor{red}{-0.11\%} & \textcolor{red}{-0.08\%} & \textcolor{red}{-0.04\%}\\
+         \hline
+         \hline
+         average & 0\% & \textcolor{red}{-0.1\%} & \textcolor{red}{-0.01\%} & 0\% & \textcolor{red}{-0.05\%} & \textcolor{red}{-0.04\%} & \textbf{\textcolor{red}{-0.07\%}} & \textbf{\textcolor{red}{-0.02\%}}\\
+         \hline
+    \end{tabular}}
+\end{table}
+
+
+\begin{table}[ht]
+    \centering
+    \caption{Effects on F1 score and classification accuracy of a Logistic Regression model trained with the Forest Cover Type dataset}
+    \label{tab:lr_forest_diff}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{|l|rr|rr|rr||rr|}
+    \hline
+        &  \multicolumn{2}{c|}{$\xi=2$} &  \multicolumn{2}{c|}{$\xi=4$} &  \multicolumn{2}{c||}{$\xi=6$} & 
+        \multicolumn{2}{c|}{average} \\
+        & F1 & acc. & F1 & acc. & F1 & acc. & F1 & acc. \\
+        \hline
+         $\gamma=100$  & 0\% & 0\% & +0.01\% & 0\% & \textcolor{red}{-0.01\%} & +0.01\% & 0\% & 0\%\\
+         \hline
+         $\gamma=50$ & \textcolor{red}{-0.02\%} & 0\% & +0.01\% & 0\% & \textcolor{red}{-0.01\%} & +0.01\% & \textcolor{red}{-0.01\%} & 0\% \\
+         \hline
+         $\gamma=25$  & 0\% & 0\% & \textcolor{red}{-0.01\%} & \textcolor{red}{-0.01\%} & \textcolor{red}{-0.05\%} & +0.02\% & \textcolor{red}{-0.02\%} & 0\%\\
+         \hline
+         $\gamma=12$  & 0\% & 0\% & \textcolor{red}{-0.02\%} & 0\% & \textcolor{red}{-0.11\%} & +0.02\% & \textcolor{red}{-0.04\%} & 0\%\\
+         \hline
+         $\gamma=6$  & 0\% & 0\% & \textcolor{red}{-0.03\%} & 0\% & \textcolor{red}{-0.14\%} & +0.03\% & \textcolor{red}{-0.06\%} & +0.01\% \\
+         \hline
+         \hline
+         average & 0\% & 0\% & \textcolor{red}{-0.01\%} & 0\% & \textcolor{red}{-0.07\%} & +0.02\% & \textbf{\textcolor{red}{-0.03\%}} & \textbf{+0.01\%}\\
+         \hline
+    \end{tabular}}
+\end{table}
+
+
+\begin{table}[ht]
+    \centering
+    \caption{Effects on F1 score and classification accuracy of a Random Forest model trained with the Forest Cover Type dataset}
+    \label{tab:rf_forest_diff}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{|l|rr|rr|rr||rr|}
+    \hline
+        &  \multicolumn{2}{c|}{$\xi=2$} &  \multicolumn{2}{c|}{$\xi=4$} &  \multicolumn{2}{c||}{$\xi=6$} & \multicolumn{2}{c|}{average} \\
+        & F1 & acc. & F1 & acc. & F1 & acc. & F1 & acc. \\
+        \hline
+         $\gamma=100$ & +0.01\% & \textcolor{red}{-0.03\%} & +0.01\% & \textcolor{red}{-0.05\%} & \textcolor{red}{-0.06\%} & \textcolor{red}{-0.08\%} & \textcolor{red}{-0.01\%} & \textcolor{red}{-0.05\%} \\
+
+         \hline
+         $\gamma=50$  & 0\% & 0\% & +0.01\% & +0.02\% & \textcolor{red}{-0.02\%} & \textcolor{red}{-0.03\%} & 0\% & 0\% \\ 
+    
+        \hline
+         $\gamma=25$  & 0\% & \textcolor{red}{-0.01\%} & \textcolor{red}{-0.07\%} & \textcolor{red}{-0.03\%} & \textcolor{red}{-0.05\%} & \textcolor{red}{-0.03\%} & \textcolor{red}{-0.04\%} & \textcolor{red}{-0.02\%} \\ 
+         
+        \hline
+         $\gamma=12$  & \textcolor{red}{-0.02\%} & 0\% & \textcolor{red}{-0.01\%} & 0\% & \textcolor{red}{-0.03\%} & \textcolor{red}{-0.05\%} & \textcolor{red}{-0.02\%} & \textcolor{red}{-0.02\%}\\ 
+
+        \hline
+         $\gamma=6$  & \textcolor{red}{-0.04\%} & \textcolor{red}{-0.08\%} & \textcolor{red}{-0.01\%} & \textcolor{red}{-0.03\%} & 0\% & \textcolor{red}{-0.01\%} & \textcolor{red}{-0.02\%} & \textcolor{red}{-0.04\%}\\ 
+      
+        \hline
+        \hline
+        average & \textcolor{red}{-0.01\%} & \textcolor{red}{-0.03\%} & \textcolor{red}{-0.01\%} & \textcolor{red}{-0.02\%} & \textcolor{red}{-0.03\%} & \textcolor{red}{-0.04\%} & \textbf{\textcolor{red}{-0.02\%}} & \textbf{\textcolor{red}{-0.03\%}} \\
+        \hline
+    \end{tabular}}
+\end{table}
+
+The changes in performance are generally very small (in most of the cases the difference is in the 4th decimal place of the absolute values), therefore we represent the changes as percentages in range (0-100\%). 
+All of the results roughly follow the rule that the performance measures decrease when $\gamma$ decreases, i.e. more marks introduced in data. We can observe this behaviour in the last columns of every table where we calculate the average F1 score and accuracy for a fixed $\gamma$ 
+Furthermore, a general rule holds that the performance slightly drops for larger $\xi$ values, i.e. more bits available for fingerprinting. This is due to larger distortions of particular values in the data.
+This is shown in the last row of every table where we average out the F1 score and accuracy for a fixed $\xi$.
+Every classifier from the experiments behaves very similarly in the means of performance decrease. Overall average F1 score and accuracy for every classifier is calculated from the experiment results and presented the bottom rightmost cell of each table. 
+
+On the Forest Cover Type data, we can conclude that the differences observed when using the Decision Tree classifier (see \Cref{tab:dt_forest_diff}) are rather minute, and would not constitute a noticeable degradation of effectiveness. 
+The trend is the same also for other classifiers, as can be seen in \Cref{tab:lr_forest_diff} for Logistic Regression, and \Cref{tab:rf_forest_diff} for Random Forest.
+In a few cases, the classification results obtained even improved, for example, the accuracy of Logistic Regression trained by data fingerprinted using $\xi=6$, though by the same rather marginal order of magnitude as the observed decline. 
+

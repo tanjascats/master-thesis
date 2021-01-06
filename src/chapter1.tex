@@ -1,0 +1,114 @@
+
+\chapter{Introduction}\label{sec:Introduction}
+
+\section{Motivation}
+
+\paragraph{}
+Over the last decades, the trends of sharing and processing digital data have vastly increased. 
+Data is a valuable asset to its owner, therefore any type of unauthorised distribution or usage by the third parties violates the rights of the owner and authorised buyers. It is the interest of the data owner to detect data leakages and to prove the ownership of the data.
+\paragraph{} 
+When the owner wants to share the digital data and at the same time keep her rights to it, as an attempt to prevent the unintended sharing or use in the data, one can think of a piece of information to be added to this data so that, when seeing a copy of the data, it is possible to extract the mark that verifies the owner. 
+This piece of information is called a watermark.
+One type of watermarks are the visible ones, commonly seen in the domain of pictures, videos or PDF files as a visual mark overlaying a part of the data. 
+These watermarks are easy to spot and, with a little bit of skill and effort, removed. 
+However, watermarks can be constructed such that it is nearly impossible for the human observer to see them.
+Consider choosing a few pixels in an image and slightly changing their intensities. The naked eye will hardly notice any changes, however, the owner can still extract the mark.
+The model that defines the watermark embeds it in the data and extracts it from the data is called the watermarking technique.
+Such a technique provides ownership protection for the distributed data.
+\paragraph{}
+One step further in ownership protection is detecting the source of unauthorised leakage, i.e. the party that distributed the data without the owner’s authorisation.
+Fingerprinting is another class of steganography, i.e. information hiding techniques, which strengthens the ownership protection by adding the property of leakage source detection and therefore is usually in the literature considered as an extension to watermarking.
+By fingerprinting a small piece of information that represents a buyer's identification is incorporated into the data, producing a distinct copy of the data for each of the data receivers.
+This buyer-specific piece of information is called fingerprint.
+This area has been widely studied in the domain of multimedia data, while in the area of relational databases there are a rather few proposed approaches. 
+
+Usually, the fingerprint is embedded in the database such that the values are slightly altered, which can affect the quality of the data.
+Once embedded in the data, the fingerprint should be detectable only by the data owner, and it should not be easily removed from the data by any operations on the database, such as removing or adding tuples.  
+Altering the data might sound like a limitation for the buyer, but according to the majority of the proposed techniques, both for watermarking and fingerprinting, this is mandatory to achieve the watermark/fingerprint robustness. 
+Therefore, one has to start with the assumption that for the potential buyers and users of the data these small alterations introduced by watermark or fingerprint are acceptable.
+The challenge is to find a good trade-off between robustness and data quality and utility. 
+\paragraph{} 
+The technique of fingerprinting is used to protect digital data. 
+Digital data inside of a file can be compared, shuffled, deleted, modified, etc., therefore one must address the problems of different attacks on the fingerprint detection process. 
+The attack may be originating from a malicious attacker who wants to, for example, remove the fingerprint from the data and distribute it illegally without consequences, or wants to falsely claim the ownership of the data, or confuse the fingerprint detection such that some other innocent buyer is accused.
+\paragraph{}
+All of the proposed fingerprinting techniques generally imply changes in the values. 
+The errors are usually minor, however, in some settings, this might cause significant violations of the result accuracy made by observation of the data.
+For example, using a fingerprinted dataset in data mining and knowledge extraction might affect the learning process and the predictions.
+Since Machine Learning plays a big role in technical progress of today's data-driven economies, it is important to show that these changes in data do not affect the insights inferred from data or a prediction-making process in a way that they significantly reduce the performance of the data mining algorithms.
+
+The alterations have a significant impact on categorical values, which makes fingerprinting categorical data a separate case study. 
+In these settings, it is hard to speak about "minor" error or a scalable measurement for information loss, i.e. the changes are more perceptible. 
+Area of fingerprinting categorical data is not as well studied as fingerprinting numerical data because of the mentioned limitations, even though fingerprinting categorical data is no less important than fingerprinting numerical values. 
+\paragraph{}
+The fingerprint scheme should satisfy the following properties:
+\begin{itemize}
+    \item[] \textbf{Detectability} The owner should be able to detect and distinguish a fingerprint from the dataset.
+    The fingerprint should be detectable also from a subset of the data, as well as the modified version of the dataset.
+    \item[] \textbf{Imperceptibility} The utility of the data should not be significantly affected by modifications caused by fingerprinting. 
+    In the literature, this is usually measured by changes in mean and variance of the numerical attributes. 
+    Besides mean and variance, we measure data imperceptibility by measuring the performance of the fingerprinted data on a classification task using different classifiers and comparing it to the performance of classifiers trained using unmarked data. 
+    \item[] \textbf{Robustness} Fingerprinting schemes should be robust against benign operations on a dataset and malicious attacks that may remove or modify embedded fingerprint. 
+Benign database operations are those with no aim of unauthorised usage or release of the database, such as deleting, adding and updating tuples. 
+Malicious attacks include selective modifications of the fingerprinted database, releasing a subset of a database or modifying and erasing the embedded fingerprint. 
+The malicious attacks that we consider in the thesis, as commonly mentioned in the literature, are:
+\begin{enumerate}
+    \item Subset attack: the attacker releases only a subset of the fingerprinted dataset
+    \item Superset attack: the attacker adds additional tuples to the fingerprinted dataset
+    \item Bit-flipping attack: values of some bits in the fingerprinted data are inverted so that fingerprint cannot be detected correctly
+    \item Additive attack: a special case of bit-flipping attack where the attacker adds a fingerprint on the fingerprinted data that might distort the initial fingerprint
+    \item Collusion attack: attackers with access to multiple copies of fingerprinted data (with different fingerprints) create a new copy of the data where neither of the embedded fingerprints might be detectable, thus no member of the malicious coalition might be implied as a source of leakage
+\end{enumerate}
+\end{itemize}
+    \paragraph{} The evaluation also provides insight into relations between different robustness, imperceptibility and detectability levels.
+
+\section{Problem Statement and Research Questions}\label{subsec:research-questions}
+Embedding a mark in data is achieved by changing its values. While the fingerprinting technique must assure visibility of a fingerprint to the data owner and imperceptibility to all the other users, it is also important that utility of the data is preserved as much as possible, otherwise, data loses its value. Loss in utility can be analysed in the aspect of changes within the dataset and from the data application point of view, such as training Machine Learning models. Fingerprinting scheme should contain evaluation on both robustness of a fingerprint and utility of fingerprinted data. 
+
+The type of data in the dataset can also be a crucial aspect of evaluating fingerprinting scheme effectiveness. Categorical data are shown to give rise to more problems with embedding the fingerprint compared to numerical data, yet an appropriate fingerprinting scheme for categorical data is necessary, otherwise, the domain of fingerprinting applications is very limited.
+
+This work thus considers the following research questions:
+\begin{enumerate}
+    \item Which metrics can be recommended to evaluate the robustness of the fingerprinting schemes for relational datasets and which to evaluate the utility of data?
+    \item How robust are the fingerprinting techniques in the setting of certain malicious attacks? 
+    \item How does the fingerprint in the data affect the quality and the utility of data?
+    \item How can we design a robust fingerprinting scheme that can be applied on non-numerical data?
+    \item How can we provide guidance on the application of the most suitable fingerprinting techniques and parameters that meet both the ownership protection and utility requirements for a given data-analysis setting?
+\end{enumerate}
+
+\section{Aim of the work}
+This work aims to answer the research questions from \Cref{subsec:research-questions}.
+Different existing fingerprinting methods will be analysed and their robustness under different attacks will be evaluated, both theoretically and experimentally.
+Special attention will be given to defining and analysing a method for fingerprinting categorical data. Furthermore, the utility of fingerprinted data will be evaluated concerning changes in metrics such as mean and variance, and concerning effects on Machine Learning models when trained on fingerprinted data compared to models trained using original data.
+The work will summarise all of the aspects of the fingerprinting scheme, from detectability by the owner, imperceptibility by the users, resilience to attacks and quality and utility of fingerprinted data.
+
+\section{Methodological Approach}
+
+    \paragraph{Implementation of fingerprinting techniques and framework for robustness analysis} 
+The proposed fingerprinting techniques \cite{li2005fingerprinting,liu2004block,guo2006fingerprinting} provide well-defined schemes and robustness analysis but lack in implementations. 
+To perform the empirical evaluation, the approaches are implemented as a part of this thesis. 
+The implementation follows the proposed algorithmic steps from their respective fingerprinting methods and allows to easily change the parameter setting for the fingerprinting method.
+Secondly, we design and implement a method for fingerprinting categorical data.
+Finally, robustness analysis requires a suitable framework for evaluating fingerprinting techniques' resilience against different attacks. 
+Each attack is modelled and incorporated into the framework such that it can be tested on any of the implemented fingerprinting schemes.
+
+\paragraph{Evaluation of the quality effects on a fingerprinted dataset for different fingerprinting techniques}
+As mentioned before, the fingerprint brings a certain distortion to the data. 
+Therefore one should address the problem of modifications of the values and consistency and integrity of the fingerprinted dataset.
+In this part, we will obtain some measures such as mean and variance of distinct numerical attributes in the real data, analyse those results and compare them to theoretical results, discussed in the respective original papers of the fingerprinting methods \cite{li2005fingerprinting, liu2004block, constantin2005watermill}.
+
+    \paragraph{Evaluation of fingerprint robustness for different fingerprinting techniques} The second part of this thesis is an evaluation of the robustness of each fingerprinting method against the malicious attacks and benign operations on the dataset. Some of the attacks include bit-flipping attack, subset attack, collusion, etc.\cite{halder2010watermarking}. Every fingerprinting method is well substantiated by the probabilistic model for the robustness against each of the attacks. We further run experiments on real data to measure the success of each attack empirically and deliver conclusions and comparisons to the theoretical results. The experiments are run with different parameter settings, therefore the impact of each parameter on the techniques' resilience to attacks is elaborated.
+
+    \paragraph{Empirical evaluation of the impact of a fingerprinted dataset on a specific learning target}
+The goal of the last part of the thesis is to evaluate the impact of a fingerprint embedded into the dataset used for a specific learning target. 
+We refer to this impact as a quality effect.
+The biggest focus is given to measuring the difference in the utility of a dataset before and after fingerprinting under the same parameter setting. 
+This is achieved by performing the same classification tasks on both datasets, in several different experiments with different supervised Machine Learning tasks, different classifiers, i.e. logistic regression, random forest, etc. and different parameters. 
+
+The overall goal of the thesis is to deliver a comprehensive overview and analysis of the state-of-the-art fingerprinting techniques for relational databases, present the robustness and defence models against numerous attacks, analyse the distortions to integrity and quality effects of the dataset via impact on learning tasks, corroborate the analysis with the experimental results and provide guidance for choosing a technique and the parameter setting based on a thorough experimental evaluation. 
+
+\section{Structure of the work}
+\Cref{sec:Introduction} provides the introduction of the thesis. It includes the motivation, problem statement, research questions and aim of the work. 
+\Cref{sec:State-of-the-art} provides the state of the art. It covers the general watermarking and fingerprinting techniques developed for domains of multimedia, text, software, etc., and related work in the area of watermarking and fingerprinting relational datasets. \Cref{sec:Fingerprinting} describes the chosen fingerprinting techniques. \Cref{sec:Robustness} covers the robustness analysis of chosen fingerprinting techniques against different attacks and empirical evaluation using different datasets. In \Cref{chapter:Utility} we analyse the quality effects of fingerprinted datasets through the experiments on real data and evaluate the effects of an embedded fingerprint in data used for training Machine Learning models. We summarise by providing the recommendations and guidance on the choice of fingerprinting techniques and parameters for specific settings.
+
+ 

@@ -1,0 +1,11 @@
+\section{Summary}
+In this chapter we have presented three common fingerprinting techniques for fingerprinting relational datasets, the AK Scheme in \Cref{subsec:ak}, Block Scheme in \Cref{subsec:block-oriented-scheme} and Two-level Scheme in \Cref{sec:two-level-fp}. 
+These techniques have in common the usage of cryptographically secure structures and algorithms, i.e. cryptographic pseudo-random sequence generator and cryptographic hash function. They are used for creating the buyers' fingerprints because of security reasons since they must remain secret to everyone except the owner of the dataset. 
+These techniques are limited to application on numerical values in the data. 
+Furthermore, two fingerprinting techniques for non-numerical data are introduced in \Cref{subsec:fingerprinting-scheme-categorical}.
+Both techniques extend the AK Scheme such that the same algorithmic steps are used for fingerprinting the numerical part of the data. 
+The first scheme follows the pseudo-random pattern of choosing marks for categorical values.
+In the second scheme, the solution goes towards preserving the correlations between the categorical values and marks the values in a way that no uncommon combinations of values occur in the final fingerprinted copy of the dataset.
+
+These techniques are the basis of the analysis in the following chapters. The techniques are susceptible to attempts of a malicious buyer to destroy the fingerprint from the dataset. 
+In the next chapter, we analyse how robust these techniques are under certain types of attacks.

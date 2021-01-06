@@ -1,0 +1,27 @@
+\chapter{An evaluation on the utility of the fingerprinting schemes}\label{chapter:Utility}
+
+\input{chapter5-1-QualityEffects.tex}
+
+\input{chapter5-2-MachineLearning.tex}
+
+\section{Summary}
+In this chapter, we deliver the analysis of the utility of the fingerprinted data. We analyse the utility from the two aspects. First, we measure the mean and variance of each attribute of the datasets before and after fingerprinting and compare them. Fingerprinting techniques for numerical data introduce almost no change in the mean and very little change in the variance. 
+For the fingerprinting technique for non-numerical data where mean and variance are not applicable, we measure the quality by counting the number of changes. 
+
+Secondly, we analyse the effect of the fingerprint on the classification performance.
+We build Machine Learning models using the original dataset and record the performance scores. Then we record the performance scores of the models using the fingerprinted datasets, under the same set of hyperparameters.
+The performance measures we use are the classification accuracy and F1 score.
+Our experiments show that the decrease in performance is minute. The fingerprinting parameters, for example, the number of marks controlled by the parameter $\gamma$, influence the performance, however, the difference stays in the same range.
+The example of the performance decrease depending on $\gamma$ is shown in \Cref{fig:classification-error} for Random Forest and three different datasets. 
+The F1 score differences are reflected over the x-axis for clarity.
+The trend of decrease in the performance error can be seen for fewer marks in data (bigger $\gamma$).
+Furthermore, we can see that the range of the errors, both accuracy and F1, are within the range [0,1.5]\%, based on which we can argue that the error introduced by the fingerprint is negligible.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{Figures/classification-screenshot.PNG}
+    \caption{Error in performance measures of the Random Forest classifier}
+    \label{fig:classification-error}
+\end{figure}
+
+We obtain similar results with every other classifier, including Decision Tree, Logistic Regression, k-NN and Gradient Boosting. 
+Our experiments with data fingerprinted with the second fingerprinting technique for categorical data based on finding the closest neighbourhood show very similar results to the naive approach. In future work, this technique will be more closely analysed, both from the robustness and the data utility point of view. In this case, the technique did not show distinctively better results than the naive approach. However, this might be case-specific and differ for the other choices of the parameter $k$ that defines the size of the neighbourhood. 

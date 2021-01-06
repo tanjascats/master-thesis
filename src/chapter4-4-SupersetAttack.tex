@@ -1,0 +1,128 @@
+\section{Superset attack}\label{subsec:superset-attack}
+
+In a superset attack, an attacker adds additional tuples to the fingerprinted data, creating a bigger, pirated dataset.
+This attack considers only the addition of the new tuples while the original set of tuples remains in the pirated dataset.
+The sources of the additional tuples can be various.
+One can add the tuples from other sources such as related datasets with similar attributes, artificial tuples with some semantic meaning, tuples generated from the dataset itself, or the values can be completely random. 
+This attack can only be applied on fingerprinting schemes whose defence algorithms can and do function without the access to the original dataset (e.g. AK Scheme).
+Otherwise, it is trivial to compare the pirated dataset to the original and remove the tuples that are added by an attacker.
+
+
+Defence in some cases can be helped by syntactical examination of the dataset. 
+In cases where additional tuples are generated completely randomly, it might be easy for a human to spot and remove them without any algorithm.
+Also, any semantic background that the defence knows about the database can serve as the preliminary step in the deletion of additional tuples.
+
+
+\subsection{AK Scheme}\label{subsec:superset-attack-ak}
+Assume that fingerprint bit $f_i$ is embedded in the original data $\omega_i$ times, and that it is extracted from the additional tuples $\omega_i'$ times \cite{li2005fingerprinting}. 
+Matching of the single extracted fingerprint bit to the correct value $f_i$ is modelled as an independent Bernoulli trial with probability 0.5 of success or failure.
+(Extraction is controlled by the new unknown values of the primary key, therefore it is equally likely for the extracted bit to be 0 or 1.)
+For the detection algorithm to fail in extracting the correct fingerprint bit, at least $(1-\tau)(\omega_i+\omega_i')$ embedded bits that correspond to the fingerprint bit $f_i$ must be detected wrongly.
+Thus, the probability that the fingerprint is detected incorrectly is $B((1-\tau)(\omega_i+\omega_i');\omega_i',0.5)$.
+The probability that the entire fingerprint is detected incorrectly is 
+\begin{equation} \label{eq:superset-attack}
+    fm = 1 - \prod_{i=0}^{L-1}(1-B((1-\tau)(\omega_i+\omega_i');\omega_i',0.5))
+\end{equation}
+
+Let us set $\tau=0.5$ (the usual default value) and analyse the performance of superset attack success for that case.
+Knowing that all fingerprint bits will be correctly extracted from the original tuples because they are not changed, intuitively, in the tuples added by the attacker the incorrect occurrence of some fingerprint bit must outnumber its occurrences in the original tuples.
+Formally, superset attack can be successful only if $\exists i\in\{0,...,L-1\}: \omega_i'\geq\omega_i$.
+To make that possible, the attacker must add at least $100\%\eta$ tuples to the original data.
+
+In AK Scheme the choice of fingerprint bit to be embedded is made randomly and independently in each step, therefore we can assume $\omega_i\approx\omega_j, \forall i,j \in \{0,...,L-1\}, i \neq j$. 
+Furthermore, we can also assume $\omega_i'\approx\omega_j', \forall i,j \in \{0,...,L-1\}, i \neq j$.
+\Cref{tab:superset-attack-forest} shows the success of the superset attack depending on $\gamma$ and number of added tuples. 
+The success is calculated using \Cref{eq:superset-attack}, taking into account the assumptions made above. 
+We analyse the success of superset attack for Forest Cover Type data with $L=96$ and $\tau=0.5$
+Value 0 is the complete failure of the attack and 1 maximum success. 
+
+\begin{table}[ht]
+    \centering
+    \caption{Superset attack success rate on the Forest Covertype data}
+    \label{tab:superset-attack-forest}
+    \begin{tabular}{|c||c|c|c|}
+    \hline
+         $\omega_i'$ & $\gamma=25$ & $\gamma=50$ & $\gamma=100$ \\
+        \hline
+         $100\%(\omega_i)$ & $1.35835\times10^{-71}$ & $3.61112\times10^{-35}$ & $8.32668\times10^{-17}$ \\
+         \hline
+         $200\%(\omega_i)$ & $1.91325\times10^{-27}$ & $8.66310\times10^{-14}$ & $1.81092\times10^{-6}$ \\
+         \hline
+         $300\%(\omega_i)$ & $8.32595\times10^{-18}$ & $9.89990\times10^{-9}$ & $0.000439$ \\
+         \hline
+         $400\%(\omega_i)$ & $3.31239\times10^{-13}$ & $1.55168\times10^{-6}$ & 0.006221 \\
+         \hline
+         $500\%(\omega_i)$ & $1.74078\times10^{-10}$ & 0.000047 & 0.029978 \\
+         \hline
+         $1000\%(\omega_i)$ & 0.000045 & 0.019113 & 0.536146 \\
+         \hline
+    \end{tabular}
+\end{table}
+
+The ratio $\omega_i/\omega_i'$ is approximately the same as ratio $\eta/\eta'$, where $\eta'$ is the number of added tuples because of the randomness in embedding the fingerprint, so we can interpret the percentages in the first row of \Cref{tab:superset-attack-forest} as the amount of added tuples in with respect to the original number of tuples. 
+
+The success rates in the \Cref{tab:superset-attack-forest} are very small even for cases with a big number of added tuples, i.e. the scheme is very resilient to superset attack. 
+Adding a lot of "fake" tuples to the dataset, in this case even several times more than the original dataset size, violates the credibility of the data. 
+The attacker does not benefit from such attack, so the subset attack is usually combined with some other attack such as subset attack (\textit{mix-and-match} attack \cite{li2005fingerprinting}). 
+
+\paragraph{}
+Superset attack requires the generation of new "fake" rows which can be achieved in several ways. 
+The attacker might come up with brand new values and combine them into new tuples or use the existing ones. 
+In any case, the semantic problem might arise if the new values, or a combination of them, do not contextually fit the attribute or the dataset. 
+For example, assume we have a dataset with information about persons such as their age, weight, height, etc. 
+Generating new tuples might result in having tuples with illogical values for attributes, for example \textit{height}:240cm or a same person with values \textit{age}:10y. and \textit{height}:190cm.
+In this case, the defence against the attack might be trivial, only by removing such tuples from the pirated dataset. 
+
+One possible superset attack model consists of generating new tuples from the existing fingerprinted data and mixing those with the original fingerprinted data to create a pirated dataset.
+The tuples are generated such that every attribute value (except for the private key) is independently randomly chosen from the set of existing values for that attribute.
+This way we make it harder for a human to distinguish between the tuples originating from the originally fingerprinted data and those added by the attacker, making the defence rely entirely on detection algorithm.
+The example of tuple generation is shown in \Cref{table:superset-attack-tuple-gen}.
+The original tuples from which the values are generated are singled out and the sampled values are highlighted.
+In the last row, we can see the generated tuple.
+
+
+\begin{table}[ht]
+\centering
+\caption{Example of tuple generation}
+\label{table:superset-attack-tuple-gen}
+\resizebox{\textwidth}{!}{
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|} 
+ \hline
+ Id & El. & Asp. & Slope & HD-H & VD-H & HD-R & HS-9am & HS-noon & HS-3pm & HD-FP & C-Type\\
+ \hline
+ 75 & 2864 & 118 & 18 & \textbf{\Large{201}} & 74 & 4567 & 248 & 221 & 93 & 4849 & \textbf{\Large{2}} \\
+ \hline
+ 191 & 2995 & 173 & 15 & 268 & \textbf{\Large{135}} & 6312 & 228 & 246 & 146 & 4135 & \textbf{\Large{2}}\\
+ \hline
+ 893 & 2924 & 270 & 10 & 134 & 11 & 5066 & 194 & 244 & \textbf{\Large{189}} & 1652 & 5\\
+ \hline
+ 1258 & 2803 & \textbf{\Large{57}} & 32 & 323 & 136 & 342 & 223 & 157 & 45 & 1851 & 5\\
+ \hline
+ 2165 & \textbf{\Large{3390}} & 59 & 10 & 124 & 12 & 2610 & 228 & 219 & 124 & 2357 & 7\\
+ \hline
+ 6880 & 2983 & 297 & \textbf{\Large{11}} & 713 & -51 & 1543 & 190 & 237 & 186 & \textbf{\Large{2003}} & \textbf{\Large{2}}\\
+ \hline
+ 11643 & 2911 & 332 & \textbf{\Large{11}} & 67 & 2 & 4972 & 193 & 225 & 172 & 1724 & 5\\
+ \hline
+ 19210 & 2737 & 20 & 7 & 95 & 14 & \textbf{\Large{2314}} & 215 & 225 & 147 & 6815 & \textbf{\Large{2}}\\
+ \hline
+ 23117 & 2877 & 165 & 3 & 30 & 4 & 5236 & \textbf{\Large{222}} & 240 & 154 & 4279 & 1\\
+ \hline
+ 23135 & 2801 & 116 & 9 & 30 & 2 & 4709 & 236 & \textbf{\Large{231}} & 126 & 4807 & \textbf{\Large{2}}\\
+ \hline
+ \hline
+ \large{581012} & \large{3390} & \large{57} & \large{11} & \large{201} & \large{135} & \large{2314} & \large{222} & \large{231} & \large{189} & \large{2003} & \large{2}\\
+ \hline
+\end{tabular}}
+\end{table}
+
+\subsection{Block Scheme}
+Superset attack essentially does not work if the original dataset is available in the fingerprint detection process. 
+Block Scheme detection algorithm requires the original dataset to extract the fingerprint as discussed in \Cref{subsec:block-oriented-scheme}, therefore this kind of attack alone, without a combination with some other attack does not make much sense.
+The owner trivially removes the tuples from the pirated dataset that are not part of the original and proceeds with the detection algorithm.
+
+\subsection{Fingerprinting scheme for the categorical data}
+The blind, simplistic fingerprinting scheme described in \Cref{subsec:fingerprinting-scheme-categorical} behaves in the same way as the AK Scheme against the superset attack. Therefore, we refer to \Cref{subsec:superset-attack-ak}.
+
+The second discussed scheme which is based on neighbourhood search is not blind. It means that any additional fake tuples in the dataset would easily be detectable and removed by a simple check and comparison with the original dataset.

@@ -1,0 +1,431 @@
+\section{Fingerprinting categorical data}\label{subsec:fingerprinting-scheme-categorical}
+
+We present two approaches to developing a technique that can be applied to both numerical and categorical data.
+Both schemes use the processes of the AK Scheme for marking numerical values.
+The first technique, a rather simplistic one, is based on a random choice of values to be marked and a random choice of a mark. 
+In the second approach, we focus on keeping the semantic relations between the categorical data rather than purely randomly choosing the marks. 
+The technique, however, relies on the availability of the original data, therefore, unlike the first scheme, it is not blind.
+\paragraph{}
+Another proposed technique for fingerprinting categorical data is \cite{Kieseberg2014fingerprinting}, where the $k$-anonymity pattern is used as a fingerprint. 
+The number of $k$-anonymity patterns is limited and highly depends on the data and user-defined generalisation hierarchies, therefore also the number of distinct fingerprints is limited.
+Furthermore, $k$-anonymity significantly changes the quality of the data. 
+Since a subset of values is replaced by the respective value of the higher semantic category (e.g. Vienna->Austria), the informativeness of the data is lost.
+Every buyer receives a distinct fingerprinted data copy, thus the quality of the data among the distributed copies differs significantly.
+The technique lacks in implementation, therefore we do not include it in our analysis.
+
+\subsection{Random mark choice}
+\subsubsection{Methodology}
+\paragraph{Insertion}
+The approach for fingerprint embedding into the categorical data has the following steps:
+\begin{enumerate}
+    \item Label encoding all categorical values to obtain numerical data
+    \item Fingerprint insertion algorithm of AK Scheme (Algorithm \ref{alg:AK-insertion})
+    \item Applying modular arithmetic to fingerprinted numerical values of categorical data
+    \item Decoding the values of categorical attributes
+\end{enumerate}
+The main idea of the approach is to convert categorical values to numerical values and treat them as any of the described methods for fingerprinting numerical data would. 
+Assume that the attribute $A$ has $c$ different categorical values $C_0, ..., C_{c-1}$.
+The label encoding model assigns each categorical value $C_i$ to the respective numerical value $i$.
+After the fingerprint is embedded, the numerical values are being decoded back to the categorical values. 
+A problem arises when a fingerprinted numerical value is not assigned to any of the categorical values in the encoding model because the range of values available in fingerprinting $2^\xi$, due to the binary representation, does not always correspond to the range of categorical values for an attribute.
+The occurrence of such illegal values is possible when the fingerprint insertion algorithm marks a bit in the numerical representation of categorical value in such a way that the change of that bit transforms the numerical value to something that can't be decoded. 
+For instance, assume that an attribute $A_1$ has 6 different categorical values ($c=6$), assigned by the encoding model to the numerical values $\{0,1,2,3,4,5\}$. 
+Furthermore, assume $\xi=2$, and the insertion algorithm deciding to change the second least significant bit of value "4" somewhere within the dataset. 
+The bit representation of the value $4_{10}=100_2$ will after marking be changed to $110_2$ which corresponds to $6$ in the decimal system, the value that is not assigned to any categorical value of attribute $A_1$. 
+In general, the set of values of $A_1$ that can be obtained after embedding the fingerprint is $\{0,1,2,3,4,5,6,7\}$, where 6 and 7 are illegal values. 
+
+Much bigger odds for a marked value to be out of bounds is in cases when the number of LSB-s available for fingerprinting $\xi$ is bigger than the length of bit representation the numerical values in label encoding model.
+For example, assume $c = 4$, i.e. an attribute $A_2$ has 4 different values that are assigned to numerical values $\{0,1,2,3\}$, and $\xi = 3$. 
+In case when insertion algorithm chooses, for example, value $2_{10}=10_2$ and its third least significant bit for fingerprinting, the resulting marked value is $110_2 = 6_{10}$, which does not have a corresponding categorical value in the encoding model. 
+In general, after the fingerprint-embedding process, the domain of possible values of the attribute $A_2$ is $\{0,..,7\}$, where $\{4,5,6,7\}$ are not assigned to any original categorical value in our label encoding model. 
+
+We solve the problem of illegal values in the fingerprinted dataset by applying modular arithmetic to the set of values obtained after fingerprinting. 
+The final numerical value $x_i'$ of the attribute is given by $x_i' = x_i$ $mod$  $c$, where $x_i$ is the value after step 2 of the fingerprint-embedding process.
+The modulo step in insertion algorithm for categorical data applied on $A_1$ would change the marked value $6_{10}=110_2$ to $6_{10} \mod 6 = 0_{10} = 000_2$. 
+
+Finally, after removing the illegal values from the fingerprinted dataset, the numerical values are decoded to the categorical values. 
+
+\paragraph{Detection}
+Fingerprint detection process contains the following steps:
+\begin{enumerate}
+    \item Label encoding categorical values using the same model as in fingerprint insertion phase
+    \item Fingerprint detection algorithm of AK Scheme (Algorithm \ref{alg:AK-detection})
+\end{enumerate}
+
+In the fingerprint detection process, it is again necessary to preprocess data by label encoding categorical values.
+The encoding model needs to match the one from the insertion phase, otherwise, the detection process is disrupted.
+After encoding categorical values, the AK detection algorithm \ref{alg:AK-detection} can be directly used to detect the malicious buyer.
+
+\subsubsection{Properties and Discussion}
+The properties of a detection algorithm for categorical data are essentially the same to the properties of AK detection algorithm, except that it is important to take into account the effects of modular arithmetic applied to the fingerprinted values where it is the case.
+Consider the previous example with attribute $A_1$ where the fingerprint insertion algorithm changes the number representation $2_{10}=10_2$ of some categorical value to value $110_2 = 6_{10}$ by marking the third LSB and modulo operator application obtains the final marked value $6_{10} \mod 6 = 0_{10} = 000_2$. 
+From this attribute value, the fingerprint bit cannot be correctly extracted anymore, therefore the detection algorithm is affected. 
+
+The detection algorithm uses the technique called \textit{majority voting} for deciding the values of fingerprint bits, as discussed in \Cref{subsec:ak}.
+This is the key to the property of the scheme that small errors in data do not prevent detecting the source of leakage. 
+The effects of these small errors, i.e. values that are changed after inserting the fingerprint, are analysed in the context of attacks in \Cref{sec:Robustness}. 
+Applying modulo to the values has the same effect on the detection process as purposely changing the values in fingerprinted data as part of a malicious attack (for example, bit flipping attack). 
+
+ 
+The success of the detection process directly depends on the number of values that are a result of performing the modulo step in the insertion phase. 
+This number is affected by the number of least significant bits we allow to change (parameter $\xi$) - larger $\xi$ leads to more frequent usage of modulo operation because the fingerprinted values more frequently get out of valid bounds. 
+Since the detection process relies on multiple embeddings of a single fingerprint bit, having more marks in the dataset might assure that the fingerprint bits are detected correctly.
+This is controlled by parameter $\gamma$ and the length of a fingerprint $L$.
+
+\Cref{tab:detection-succ-german} presents the success of the detection algorithm for different values of parameters $\gamma$ and $\xi$. 
+A fingerprint is in these experiments embedded in categorical values only.
+Length of a fingerprint $L$ is set to 40.
+The dataset used for experiments from \Cref{tab:detection-succ-german} is the German Credit data with 1000 entries and 21 attributes, out of which 14 are categorical. The dataset is described in \Cref{datasets}.
+The results are based on 1000 runs of the algorithm for every parameter combination.
+
+\begin{table}[ht]
+    \centering
+    \caption{Success of a detection algorithm of the fingerprinting scheme for categorical data using the German Credit dataset}
+    \label{tab:detection-succ-german}
+    \begin{tabular}{|c|r|r|r|r|}
+    \hline
+         & $\xi=1$ & $\xi=2$ & $\xi=4$ & $\xi=6$ \\
+         \hline
+         $\gamma=2$ & 99.8\% & 99.3\% & 56.4\% & 23.2\%\\
+         \hline
+         $\gamma=3$ & 94.7\% & 90.4\% & 17.3\% & 2.9\% \\
+         \hline
+         $\gamma=6$ & 30.0\% & 18.2\% & 0.3\% & 0\%\\
+         \hline
+         $\gamma=9$ &  2.9\% & 1.0\% & 0\% & 0\%\\
+         \hline
+         $\gamma=12$ & 0.1\% & 0\% & 0\% & 0\%\\
+         \hline
+    \end{tabular}
+\end{table}
+
+The detection algorithm performance significantly drops when either $\xi$ or $\gamma$ are increased. 
+The expectation that the performance of the detection algorithm drops if more LSB-s are available for embedding the fingerprint (larger $\xi$) is confirmed by these experiments. 
+\Cref{tab:german-credit} shows how many categorical attributes have a certain amount of different values in German Credit dataset. 
+For instance, 3 out of 14 categorical attributes have 3 different values and therefore require only 2 bits to be encoded. 
+An additional 10 attributes have up to 5 different values, therefore can be encoded by 3 bits. 
+
+
+In the case where our insertion algorithm marks the 1st or the 2nd LSB of the value, the value obtained after fingerprinting will most likely be a modified numerical value that can be decoded back to a valid categorical value.
+However, allowing e.g. the 4th significant bit to be marked in the insertion process opens more possibilities of obtaining values outside of the bounds, and modulo needs to be applied.
+This results in the big decrease in the detection that can be seen in \Cref{tab:detection-succ-german} between $\xi=2$ and $\xi=4$. 
+Applying modulo changes the marked value in the way that the detection algorithm can't extract the fingerprint bit correctly, leading to the impossibility of detecting a valid fingerprint. 
+Generally, increasing $\xi$ leads to worse performance of the detection algorithm. 
+A good choice for value of parameter $\xi$ depends very much on the dataset. 
+One needs to inspect the dataset to see approximately how many different values the categorical attributes have, and set $\xi$ accordingly.
+For example, if most of the categorical attributes have approximately 4 values, then $\xi$ should be at most 2 to keep the performance of the detection algorithm high. 
+Generally, $\xi$ should be set to at most the number of bits needed to encode all the values of the attribute to their binary representations. 
+The choice of parameter $\xi$ according to this will help in decreasing the loss in performance of the detection algorithm, but it generally cannot be completely avoided.
+One of the reasons is that the choice of $\xi$ is limited to choosing the same value for the entire dataset, i.e. the same number of LSBs is available for fingerprinting in any of the attributes, no matter the size of their domains.
+The optimal choice for $\xi$ from a detection performance point of view is then constrained by attributes with a small number of different values, while from the robustness point of view it is desired to have larger $\xi$, as discussed in detail in \Cref{sec:Robustness}. 
+On the other hand, if the numbers of different values in all categorical attributes are not all power of two and $\xi$ not set according to the size of the smallest domain, there will always be even a minor possibility that the \textit{modulo} will be applied and will affect the detection algorithm. 
+
+Besides the parameter $\xi$, the parameter $\gamma$ affects the performance of the detection algorithm, as shown in \Cref{tab:detection-succ-german} ($\gamma=2$ means that on average every second tuple is chosen for fingerprinting). 
+Experiments show a significant decrease in performance when increasing $\gamma$. 
+Increasing $\gamma$ means marking fewer tuples. Consequently, each fingerprint bit will be embedded in the data fewer times. 
+This makes it harder for the detection algorithm to extract the correct value of a specific fingerprint bit when errors caused by the modulo operation are introduced. 
+The design of our detection algorithm requires the perfect match of the fingerprint extracted by detection algorithm to some valid buyer's fingerprint, therefore only one falsely extracted fingerprint bit is enough for detection algorithm to fail. 
+This is the reason for the success of 0\% for experiments with both high $\gamma$ and high $\xi$.
+
+The issue that arises when fingerprinting dataset as small as German Credit data with only 1000 rows is that with $\gamma$ large enough, some fingerprint bits don't get embedded at all in the insertion process. 
+Let us have an example where $\gamma=12$ and $L=40$. 
+According to the parameters, $1000/\gamma \approx 83$ rows will be fingerprinted, and each fingerprint bit will be embedded into the dataset $83/40\approx2$ times. 
+This number is approximate, and most importantly, averaged over all fingerprint bits. 
+Since the choice of fingerprint bit to be embedded is completely independent and random in every step of the insertion algorithm, it is plausible to expect some bits being embedded 0 times.
+This means that the detection algorithm will fail to extract the valid fingerprint from the unchanged fingerprinted dataset if the insertion process failed to embed all fingerprint bits at least once.
+This observation is important to be noted when analyzing results from the \Cref{tab:detection-succ-german} because the success of the detection algorithm in small datasets is affected not only by errors caused by modulo operation but also by the failure of insertion algorithm to embed all of the fingerprint bits for larger $\gamma$.
+To analyze these effects as separate cases, we define the following measures:
+\begin{itemize}
+    \item \textit{DFR} (Detection Fail Rate) - the number of fingerprint bits wrongly extracted because of the errors caused by modulo operation in the fingerprint detection process
+    \item \textit{IFR} (Insertion Fail Rate) - the number of fingerprint bits that were not embedded at all in the fingerprint insertion process, and are therefore impossible to be extracted (unknown bit value)
+    \item \textit{DIFF} - bit difference between the extracted fingerprint and the correct one; $DIFF = DFR + IFR$
+\end{itemize}
+\Cref{tab:detection-fail-rates} shows the rates obtained by the experiments shown in the \Cref{tab:detection-succ-german}, and presents a comparison of how much effect on the success of detecting the valid fingerprint is due to the modulo operation, and how much due to non-embedded bits. 
+Rates in the table are the average values of rates from all 1000 runs. 
+Insertion Fail Rate (\textit{IFR}) depends only on the number of dataset values being fingerprinted, i.e. parameter $\gamma$.
+For $\gamma$ as small as two, a single fingerprint bit is embedded $1000/(\gamma * L) \approx 13$ times on average, and experimental results show that the insertion algorithm does not fail in embedding all of the fingerprint bits in any of the 1000 trials. 
+The detection algorithm is, for $\gamma=2$, affected only by errors induced by modulo, and the fingerprint extracted by the algorithm and the correct one differ in only 0.002 bits on average.
+For $\gamma = 12$ the \textit{IFR} raises up to $\approx5 / 40$, i.e. on average 5 out of 40 bits of the extracted fingerprint are incorrect.
+From the experiments, we can see that in most of the cases $DFR$ is larger than $IFR$, i.e. errors in fingerprint extraction are mostly caused by applying modulo operation, except for small values of $\xi$. 
+
+\begin{table}[ht]
+    \centering
+    \caption{Bit difference and the detection fail rates for the German Credit data}
+    \label{tab:detection-fail-rates}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{|c|r|r||r|r||r|r||r|r||r|r||r|}
+    \hline
+         & \multicolumn{2}{c||}{$\xi=1$} & \multicolumn{2}{c||}{$\xi=2$} & \multicolumn{2}{c||}{$\xi=4$} & \multicolumn{2}{c||}{$\xi=6$} &  \\
+         \hline
+         & $DIFF$ & $DFR$ & $DIFF$ & $DFR$ & $DIFF$ & $DFR$ & $DIFF$ & $DFR$ & $IFR$ \\
+         \hline
+          $\gamma=2$ & $ 0.002$& $  0.002$ & $ 0.007$ & $  0.007$ & $ 0.562$ & $  0.562$  &  $ 1.376$
+             & $  1.376$ & 0\\
+         \hline 
+         $\gamma=3$ & $ 0.055$ & $  0.045$ & $ 0.100$ & $  0.090$  & $ 1.654$ & $  1.644$ & $ 3.203$ & $  3.193$
+              & 0.010 \\
+         \hline
+         $\gamma=6$ & $1.170$ & $0.558$ & $1.642$ & $1.030$ & $5.603$ & $4.991$ & $7.842$  & $7.230$ & 0.612 \\
+         \hline
+          $\gamma=9$ & $3.615$ & $ 1.105$ & $4.256$ & $1.746$ & $9.206$ & $ 6.696$ & $11.498$ & $ 8.988$ & 2.510 \\
+         \hline
+         $\gamma=12$ & $6.462$ & $ 1.424$ & $
+         7.190$ & $ 2.152$ & $11.935$ & $6.897$ &  $14.095$ & $9.057$ & 5.038 \\
+         \hline
+    \end{tabular}}
+\end{table}
+
+
+\Cref{tab:detection-succ-german-without-modulo} shows the experimental results of the success of the detection algorithm when modulo is not applied, but illegal numerical values are left in the fingerprinted dataset. 
+Experiments are as well run on the German Credit dataset, with 1000 runs for each parameter value. 
+This table highlights the case of having a small dataset. 
+The results show how limited the choice of parameter $\gamma$ is in these cases. 
+
+\begin{table}[ht]
+    \centering
+    \caption{Success of a detection algorithm using the German Credit dataset without applying modulo operation}
+    \label{tab:detection-succ-german-without-modulo}
+    \begin{tabular}{|c|c|c|c|c|c|}
+    \hline
+         $\gamma=2$ & $\gamma=3$ & $\gamma=6$ & $\gamma=9$ & $\gamma=12$ & $\gamma=15$\\
+         \hline
+         100\% & 99.0\% & 54.5\% & 7.6\% & 0.6\%  & 0\%\\
+         \hline
+    \end{tabular}
+\end{table}
+
+We repeat the experiments on another, larger dataset in order to examine the effects of modulo operation on the detection process, without other side effects such as the insertion algorithm failure.
+For the experiments, we use Adult dataset. 
+The dataset originally has 32,561 rows that contain missing values.
+We will not examine dealing with missing values, so for the experiments, we use the subset of 30,162 rows that do not contain any missing values.
+\Cref{tab:detection-succ-adult} shows the experimental results of the success of the detection algorithm to recognise the correct malicious buyer.
+the fingerprint length \textit{L} is set to 80.
+The results in \Cref{tab:detection-succ-adult} are the percentage of successfully detected fingerprints out of 1000 runs for every parameter combination.
+
+\begin{table}[ht]
+    \centering
+    \caption{Success of the detection algorithm using Adult dataset}
+    \label{tab:detection-succ-adult}
+    \begin{tabular}{|c|r|r|r|r|}
+    \hline
+         & $\xi=1$ & $\xi=2$ & $\xi=4$ & $\xi=6$ \\
+         \hline
+         $\gamma=3$ & 100\% & 100\% & 100\% & 100\% \\
+         \hline
+         $\gamma=6$ & 100\% & 100\% & 100\% & 100\%\\
+         \hline
+         $\gamma=12$ & 100\% & 100\% & 100\% & 99.5\%\\
+         \hline
+         $\gamma=25$ & 100\% & 100\% & 95.8\% & 64.0\% \\
+         \hline
+         $\gamma=50$ & 95.6\% & 72.6\% & 25.2\% & 1.4\% \\
+         \hline
+         $\gamma=100$ & 14.2\% & 3.0\% & 0\% & 0\% \\
+         \hline
+    \end{tabular}
+\end{table}
+
+Comparing the results from \Cref{tab:detection-succ-german} and \Cref{tab:detection-succ-adult} it can be observed that the detection algorithm performance improved a lot by having a larger dataset. 
+For low $\gamma$ the performance is perfect or close to perfect. 
+Again, increasing $\xi$ leads to worse performance of the detection algorithm since the modulo operation is required more and fingerprint bits are wrongly detected. 
+In \Cref{tab:adult-detection-rates} we can see that the extracted fingerprint is very "close" to the valid one. 
+For instance, in the case of $\gamma=50$ and $\xi=2$, the performance of the algorithm drops to 72.6\%, but the bit difference between the extracted and real fingerprint is on average 0.31 (\Cref{tab:adult-detection-rates}, $DIFF$ rate), meaning that for most of the remaining 27.4\% runs of the algorithm, the fingerprints' bit difference is only in one single bit. 
+In \Cref{tab:adult-detection-rates} we omitted the experiments where the detection success is 100\% since all the rates for those cases are 0.
+In other cases, we can see that insertion fail rate $IFR$ is very small or zero, so most of the fingerprint detection failure is caused by modulo operation. 
+
+\begin{table}[ht]
+    \centering
+    \caption{The detection fail rates for Adult data}
+    \label{tab:adult-detection-rates}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{|c|r|r||r|r||r|r||r|r||r|r||r|}
+    \hline
+         & \multicolumn{2}{c||}{$\xi=1$} & \multicolumn{2}{c||}{$\xi=2$} & \multicolumn{2}{c||}{$\xi=4$} & \multicolumn{2}{c||}{$\xi=6$} &  \\
+         \hline
+         & $DIFF$ & $DFR$ & $DIFF$ & $DFR$ & $DIFF$ & $DFR$ & $DIFF$ & $DFR$ & $IFR$ \\
+         \hline
+        $\gamma=25$ & $ 0$  & $  0$  & $ 0$ &$  0$  & $ 0.043$ & $  0.043$ & $ 0.431$ & $  0.431$ & 0 \\
+         \hline
+         $\gamma=50$ & $ 0.047$ & $  0.003$ & $ 0.310$ & $  0.266$ & $ 1.302$ & $  1.258$  & $ 3.987$ & $  3.943$ & 0.044 \\
+         \hline
+         $\gamma=100$ & $ 1.994$ & $  0.158$ & $ 4.086$ & $  2.250$ & $ 7.030$ & $  5.194$ & $ 12.228$ & $  10.392$ & 1.836 \\
+         \hline
+    \end{tabular}}
+\end{table}
+
+
+The problem of having illegal categorical values after the fingerprinting process is thwarted by the solution that introduces another problem - the weaker performance of the detection algorithm. 
+Bad performance of the detection algorithm necessarily means that the presented fingerprinting scheme for categorical data is more susceptible to the attacks.
+Small datasets are more vulnerable because of the possibility that the insertion algorithm fails to embed the fingerprint properly, not only in the context of categorical data but in general.
+By careful dataset inspection and parameter tuning, both problems of small dataset and errors caused by modulo can be avoided. 
+Lower \textit{L}, $\gamma$ and $\xi$ in general lead to better performance.
+
+\paragraph{}
+We saw that the number of LSB-s $\xi$ defines the quality of the scheme and that by choosing smaller $\xi$ we can minimise the error of the detection algorithm. 
+In the discussion above, we use the fixed $\xi$ for all the attributes. 
+However, we could modify this property such that each attribute $A_i$ is associated with own $\xi_i$ based on the number of distinct values of that attribute. 
+This way we increase the robustness by setting particular $\xi_i$ values as high as possible, taking into account the upper limit that is defined by the number of distinct values in the attribute. 
+For instance, changing only one LSB in the attribute with only three values, but allowing to change 5 LSB-s in attributes with $>40$ values. 
+
+This approach is simplistic but effective. 
+We will see in \Cref{sec:Robustness} the robustness analysis of the scheme and in \Cref{chapter:Utility} the utility analysis.
+Another aspect that could be taken into account when designing a robust fingerprint technique is the semantic correlation between the categorical attributes. 
+For instance, the fingerprint might be much more perceptible when there is a frequent number of occurrences of impossible or very unlikely combinations of attribute values due to marking.
+This problem is addressed in the following section.
+
+
+\subsection{Choosing a mark based on correlations in the dataset}
+This approach addresses the problem of semantic relations between categorical attributes that can be disturbed by fingerprinting. 
+Considering attributes independently of each other and embedding a random mark into a categorical value might lead to non-consistent records. 
+A mark may introduce an uncommon or impossible combination of values in the data. 
+As an example, let us consider a dataset containing attributes \textit{gender}, \textit{numberOfPregnancies}, etc. The attributes \textit{gender} and \textit{numberOfPregnancies} intuitively contain an impossible combination of values: (\textit{gender}:male, \textit{numberOfPregnancies}:1).
+Another example is where the combination of values might be very uncommon. Take, for example, a medical dataset containing information about the patients suffering from Alzheimer's disease. The combination 
+(\textit{alzheimersStage}:middle, \textit{employed}:yes) is very uncommon, but might be introduced by a random fingerprint mark.
+With a dataset domain knowledge, these examples would be rather suspicious and thus perceptible. 
+We aim to take into account the correlation between the values of different attributes and avoid uncommon combinations. 
+\Cref{alg:cat-insertion} shows the pseudocode for the insertion algorithm of the scheme.
+
+\subsubsection{Methodology}
+\paragraph{Insertion}
+\begin{algorithm}
+  \KwIn{dataset $\mathcal{R}$ with scheme $(P, A_{0}, ..., A_{v-1})$, buyer $n$'s ID $id$}
+  \KwOut{fingerprinted dataset $\mathcal{R'}$}
+  fingerprint of buyer $n$: $\mathcal{F}(\mathcal{K},id)=\mathcal{H}(\mathcal{K}|id)$
+  \\
+  \ForEach{tuple $r \in \mathcal{R}$}
+  {
+    \If{$(\mathcal{S}_{1}(\mathcal{K}|r.P)$ mod $\gamma == 0)$}{
+        attribute\_index $i = \mathcal{S}_2(\mathcal{K}|r.P)$ mod $v$
+        \\
+        \uIf{$A_i$ is categorical}{
+            mask\_bit $x=0$ if $\mathcal{S}_3(\mathcal{K}|r.P)$ is even; $x=1$ otherwise \\
+            fingerprint\_index $l=\mathcal{S}_4(\mathcal{K}|r.P)$ mod $L$
+            \\
+            fingerprint\_bit $f=f_l$\\
+            mark\_bit $m=x \oplus f$ \\
+            \If{m == 1}{
+                neighbourhood = $select\_neighbours()$ \\
+                target\_values, freq = $get\_frequencies(\text{neighbourhood})$\\
+                $r.A_i = random(\text{target\_values}, weight=\text{freq})$
+            }
+        }
+        \uElseIf{$A_i$ is numerical}{
+            bit\_index $j=\mathcal{S}_3(\mathcal{K}|r.P)$ mod $\xi$
+            \\
+            mask\_bit $x=0$ if $\mathcal{S}_4(\mathcal{K}|r.P)$ is even; $x=1$ otherwise
+            \\
+            fingerprint\_index $l=\mathcal{S}_5(\mathcal{K}|r.P)$ mod $L$
+            \\
+            fingerprint\_bit $f=f_l$
+            \\
+            mark\_bit $m=x \oplus f$
+            \\
+            $LSB(j,r.A_i) = m$
+        }
+    }
+  }
+  \Return{$\mathcal{R'}$}
+  \caption{Fingerprinting technique for categorical data: Insertion Algorithm}
+  \label{alg:cat-insertion} 
+\end{algorithm}
+
+The insertion algorithm resembles the AK Scheme's insertion algorithm (\Cref{alg:AK-insertion}).
+The creation of a fingerprint and the pseudorandom choice of tuples and attributes to be marked is the same.
+In this scheme, the distinction is made based on whether a numerical or a categorical attribute is chosen for fingerprinting (line 5). 
+In a case where the attribute is categorical, the next random value generated by a pseudorandom number generator $\mathcal{S}$ decides the value of a mask bit $x$. 
+Furthermore, the next random value from the generator decides which fingerprint bit $f_l$ is going to be embedded. 
+The mark bit $m$ is a result of an XOR operation between the mask and the fingerprint bit. 
+In case the mark is 1, the attribute value will be marked. 
+The lines 11 to 13 of \Cref{alg:cat-insertion} are specific for this scheme and contain the main part of this scheme.
+Instead of marking the value to something random from the domain of the attribute, the idea is to choose a value taking into account the values of the other attributes in the tuple. 
+This way, the algorithm avoids the combinations of values that are unlikely to appear in the dataset. 
+We search for a neighbourhood of the observed tuple regarding all attributes but one that is being fingerprinted. 
+We find the neighbours using the nearest neighbours algorithm with the Hamming distance. 
+We let the user select whether the neighbourhood will be defined as a certain number of neighbours, $k$, or as the set of elements within the given distance $d$.
+The parameters $k$ and $d$ are predefined by the user as well. 
+After the neighbours are obtained, we observe the values in the attribute $A_i$ and sort them by their frequencies. 
+The new value, i.e. the fingerprinted value is then a random value from the set of neighbours' values, where the random choice is weighted by values' frequencies. 
+This technique is known in genetic algorithms as a fitness proportionate selection, or roulette wheel selection, a genetic operator used for selecting potentially useful solutions for recombination.
+Fingerprinting process of numerical values follows the steps of the AK Scheme. 
+
+\paragraph{Detection}
+The pseudocode for the detection algorithm is shown in \Cref{alg:cat-detection}.
+
+\begin{algorithm}
+  \KwIn{fingerprinted dataset $\mathcal{R'}$ with scheme $(P, A_0, ..., A_{v-1})$, original dataset $\mathcal{R}$ with scheme $(P,A_0,...,A_{v-1}$}
+  \KwOut{suspected buyer's ID $id$}
+  fingerprint template $\mathcal{F}=(f_0,...,f_{L-1})=(?,...,?)$  \\
+  $count[i][0]=count[i][1]=0$ \textbf{for} $i=0$ to $L-1$\\ 
+  \ForEach{tuple $r \in R'$}
+  {
+    \If{$\mathcal{S}_1(\mathcal{K},r.P)$ mod $\gamma==0$}
+    {
+        attribute\_index $i=\mathcal{S}_2(\mathcal{K},r.P)$ mod $v$\\
+        \uIf{$A_i$ is categorical}{
+            mask\_bit $x=0$ if $\mathcal{S}_3(\mathcal{K},r.P)$ is even; $x=1$ otherwise\\
+            \uIf{$r.A_i$ is different from the original}{
+                mark\_bit $m = 1$
+            }
+            \uElse{
+                mark\_bit $m= 0$
+            }
+            fingerprint\_index $l=\mathcal{S}_4(\mathcal{K},r.P)$ mod $L$\\
+        }
+        \uElseIf{$A_i$ is numerical}{
+        bit\_index $j=\mathcal{S}_3(\mathcal{K}, r.P)$ mod $v$\\
+        mark\_bit $m=LSB(j, r.A_i)$\\
+        mask\_bit $x=0$ if $\mathcal{S}_4(\mathcal{K},r.P)$ is even; $x=1$ otherwise\\
+        fingerprint\_index $l=\mathcal{S}_5(\mathcal{K},r.P)$ mod $L$\\
+        }
+        //update the votes\\
+        fingerprint\_bit $f=m \oplus x$\\
+        $count[l][f]++$ 
+    }
+  }
+  //recover the fingerprint\\
+  \For{$l=0$ to $L-1$}
+  {
+    \If{$count[l][0]+count[l][1]==0$}
+    {
+        \Return{\textit{none suspected}}
+    }
+    $f_l=0$ if $count[l][0]/(count[l][0]+count[l][1])>\tau$\\
+    $f_l=1$ if $count[l][1]/(count[l][0]+count[l][1])>\tau$\\
+    \Return{\textit{none suspected}} otherwise
+  }
+  $\mathcal{F}=(f_0,...,f_{L-1})$\\
+  $id=detect(\mathcal{F,K},L, N)$\\
+  \uIf{$id\geq0$}
+  {
+    \Return{$id$}
+  }
+  \Else
+  {
+    \Return{\textit{none suspected}}
+  }
+  \caption{Fingerprinting technique for categorical data: Detection Algorithm}
+  \label{alg:cat-detection}
+\end{algorithm}
+
+Similarly to the AK's detection algorithm (\Cref{alg:AK-detection}), the algorithm starts by initializing the fingerprint template and the votes for fingerprint bit values. 
+We then find the tuples and attributes that should have been fingerprinting according to the same pseudorandom sequence as in the insertion algorithm. 
+For categorical attributes, the fingerprint extraction is described from line 7 to 12. 
+We retrieve the mask bit $x$.
+Next, to find the value of the mask bit $m$, it is necessary to compare the suspected fingerprinted dataset to the original. 
+If the corresponding value is different from the original, then the value $m$ was 1 in the insertion algorithm, otherwise 0. 
+Furthermore, we find the fingerprint bit index $l$ as the next random value in the pseudorandom sequence generator.
+The lines 13 to 17 contain the extraction from the numerical values which is the same as in the extraction algorithm of the Ak Scheme.
+The lines 18 to 38 are common for both categorical and numerical data and follow the steps from the detection algorithm of the AK Scheme. 
+
+\subsubsection{Discussion}
+Neighbourhood search is implemented in two different ways and is left to the user to decide which one to use for the specific case. We allow searching for a fixed number of neighbours, $k$, or searching for neighbours within a predefined distance $d$. 
+The choice between the approach, as well as setting the parameters $k$ and $d$ requires some expert knowledge about the dataset. 
+In case of an approach based on selecting a fixed number of neighbours, it is important to handle the neighbours with the same distances deterministically. We solve this in the following way: first, we choose the $k$ neighbours, then find the maximum distance within the neighbours and select all elements outside of the neighbourhood with the same distance. 
+Therefore, it might be the case where the neighbourhood is extended to more than $k$ elements.
+
+The set of attributes included in the neighbourhood selection do not have to be the whole set of attributes of the dataset. 
+This can be set by the user who has insights into the data and has the knowledge about the highly related attributes. 
+
+The final choice of the mark could be ambiguous if we would always choose the most frequent ones, in cases when we have multiple values with the same frequencies. 
+For that reason we choose to select the new value pseudorandomly, weighted by the frequencies. This way the whole set of values from the neighbourhood have a chance to be selected, while the most frequent one will be selected with the highest probability.
+

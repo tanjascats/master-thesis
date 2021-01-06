@@ -1,0 +1,185 @@
+% German Credit Data
+\subsection{German Credit Data}
+With the last set of experiments, we analyse the utility of the fingerprinted data that contains a mixture of numerical and non-numerical attributes.
+We use the German Credit dataset and apply both AK Scheme to the numerical values and the naive fingerprinting technique for categorical data to non-numerical. 
+We unify these two processes into one fingerprinting process since these techniques share the algorithmic steps, except for the modification for marking the categorical values. 
+We use Decision Tree, k-NN, Logistic Regression and Random Forest for the classification and follow the usual procedure. We find with the random search that the best hyperparameters for the model trained with original data are as follows:
+\begin{itemize}
+    \item Decision Tree: $max\_depth=2$, $criterion=entropy$
+    \item k-NN: $n\_neighbors=14$
+    \item Logistic Regression: $solver=newton-cg$, $C=70$
+    \item Random Forest: $n\_estimators=85$, $max\_depth=10$, $criterion=gini$
+\end{itemize}
+
+\Cref{tab:dt_german_diff,tab:knn_german_diff,tab:lr_german_diff,tab:rf_german_diff} show the resulting differences in F1 and accuracy scores (on a scale $[0,100]\%$) between original and fingerprinted German Credit data for Decision Tree, k-NN, Logistic Regression and Random Forest, respectively.
+
+\begin{table}[ht]
+    \centering
+    \caption{Effects on F1 score and classification accuracy of a Decision Tree model trained with the German Credit dataset}
+    \label{tab:dt_german_diff}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{|c|rr|rr|rr|rr||rr|}
+    \hline
+        &  \multicolumn{2}{c|}{$\xi=1$} &  \multicolumn{2}{c|}{$\xi=2$} &  \multicolumn{2}{c|}{$\xi=4$} &  \multicolumn{2}{c||}{$\xi=6$} & \multicolumn{2}{c|}{average}\\
+        & F1 & acc. & F1 & acc. & F1 & acc. & F1 & acc. & F1 & acc. \\
+        \hline
+         $\gamma=12$ & 0\% & 0\% & \textcolor{red}{-0.07\%} & \textcolor{red}{-0.10\%} & \textcolor{red}{-0.07\%} & \textcolor{red}{-0.10\%} & 0\% & 0\% & \textcolor{red}{-0.04\%} & \textcolor{red}{-0.05\%}\\
+        \hline
+         $\gamma=9$ & 0\% & 0\% & 0\% & 0\% & \textcolor{red}{-0.14\%} & \textcolor{red}{-0.20\%} & \textcolor{red}{-0.14\%} & \textcolor{red}{-0.20\%} & \textcolor{red}{-0.07\%} & \textcolor{red}{-0.10\%}\\
+        \hline
+         $\gamma=6$ & 0\% & 0\% & \textcolor{red}{-0.07\%} & \textcolor{red}{-0.10\%} & \textcolor{red}{-0.14\%} & \textcolor{red}{-0.20\%} & \textcolor{red}{-0.14\%} & \textcolor{red}{-0.20\%} & \textcolor{red}{-0.09\%} & \textcolor{red}{-0.13\%}\\
+        \hline
+         $\gamma=3$ & 0\% & 0\% & \textcolor{red}{-0.14\%} & \textcolor{red}{-0.20\%} & \textcolor{red}{-0.14\%} & \textcolor{red}{-0.20\%} & \textcolor{red}{-0.42\%} & \textcolor{red}{-0.60\%} & \textcolor{red}{-0.18\%} & \textcolor{red}{-0.25\%}\\
+        \hline
+        \hline
+    average & 0\% & 0\% & \textcolor{red}{-0.07\%} & \textcolor{red}{-0.10\%} & \textcolor{red}{-0.12\%} & \textcolor{red}{-0.18\%} & \textcolor{red}{-0.18\%} & \textcolor{red}{-0.25\%} & \textbf{\textcolor{red}{-0.09\%}} & \textbf{\textcolor{red}{-0.13\%}} \\
+    \hline
+    \end{tabular}}
+\end{table}
+
+
+\begin{table}[ht]
+    \centering
+    
+    \caption{Effects on F1 score and classification accuracy of a k-NN model trained with the German Credit dataset}
+    \label{tab:knn_german_diff}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{|c|rr|rr|rr|rr||rr|}
+    \hline
+        &  \multicolumn{2}{c|}{$\xi=1$} &  \multicolumn{2}{c|}{$\xi=2$} &  \multicolumn{2}{c|}{$\xi=4$} &  \multicolumn{2}{c||}{$\xi=6$} & \multicolumn{2}{c|}{average} \\
+        & F1 & acc. & F1 & acc. & F1 & acc. & F1 & acc.  & F1 & acc. \\
+        \hline
+         $\gamma=12$ & 0.0\% & 0.0\% & \textcolor{red}{-0.14\%} & \textcolor{red}{-0.20\%} & \textcolor{red}{-0.07\%} & \textcolor{red}{-0.10\%} & 0.0\% & 0.0\% & \textcolor{red}{-0.05\%} & \textcolor{red}{-0.08\%}\\
+        \hline
+         $\gamma=9$ & 0.0\% & 0.0\% & \textcolor{red}{-0.05\%} & \textcolor{red}{-0.10\%} & \textcolor{red}{-0.14\%} & \textcolor{red}{-0.20\%} & \textcolor{red}{-0.22\%} & \textcolor{red}{-0.30\%} & \textcolor{red}{-0.10\%} & \textcolor{red}{-0.15\%}\\
+        \hline
+         $\gamma=6$ & 0.0\% & 0.0\% & \textcolor{red}{-0.27\%} & \textcolor{red}{-0.40\%} & \textcolor{red}{-0.14\%} & \textcolor{red}{-0.20\%} & \textcolor{red}{-0.22\%} & \textcolor{red}{-0.30\%} & \textcolor{red}{-0.16\%} & \textcolor{red}{-0.23\%} \\
+        \hline
+         $\gamma=3$ & 0.0\% & 0.0\% & \textcolor{red}{-0.09\%} & \textcolor{red}{-0.10\%} & \textcolor{red}{-0.39\%} & \textcolor{red}{-0.60\%} & \textcolor{red}{-0.45\%} & \textcolor{red}{-0.60\%} & \textcolor{red}{-0.23\%} & \textcolor{red}{-0.33\%}\\
+        \hline
+        \hline
+        average & 0\% & 0\% & \textcolor{red}{-0.14\%} & \textcolor{red}{-0.20\%} & \textcolor{red}{-0.19\%} & \textcolor{red}{-0.28\%} & \textcolor{red}{-0.22\%} & \textcolor{red}{-0.30\%} & \textbf{\textcolor{red}{-0.14\%}} & \textbf{\textcolor{red}{-0.19\%}}\\
+        \hline
+    \end{tabular}}
+\end{table}
+
+\begin{table}[ht]
+    \centering
+    \caption{Effects on F1 score and classification accuracy of a Logistic Regression model trained with the German Credit dataset}
+    \label{tab:lr_german_diff}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{|c|rr|rr|rr|rr||rr|}
+    \hline
+        &  \multicolumn{2}{c|}{$\xi=1$} &  \multicolumn{2}{c|}{$\xi=2$} &  \multicolumn{2}{c|}{$\xi=4$} &  \multicolumn{2}{c||}{$\xi=6$} & \multicolumn{2}{c|}{average} \\
+        & F1 & acc. & F1 & acc. & F1 & acc. & F1 & acc. & F1 & acc. \\
+        \hline
+         $\gamma=12$ & \textcolor{red}{-0.02\%} & 0.0\% & \textcolor{red}{-0.45\%} & \textcolor{red}{-0.61\%} & \textcolor{red}{-0.02\%} & +0.09\% & +0.17\% & +0.30\% & \textcolor{red}{-0.08\%} & \textcolor{red}{-0.06\%} \\ 
+         \hline
+         $\gamma=9$ & \textcolor{red}{-0.04\%} & 0.0\% & \textcolor{red}{-0.27\%} & \textcolor{red}{-0.30\%} & \textcolor{red}{-0.38\%} & \textcolor{red}{-0.60\%} & \textcolor{red}{-0.25\%} & \textcolor{red}{-0.50\%} & \textcolor{red}{-0.24\%} & \textcolor{red}{-0.35\%}\\
+         \hline
+         $\gamma=6$ & \textcolor{red}{-0.05\%} & \textcolor{red}{-0.10\%} & \textcolor{red}{-0.42\%} & \textcolor{red}{-0.71\%} & \textcolor{red}{-0.55\%} & \textcolor{red}{-0.80\%} & \textcolor{red}{-0.25\%} & \textcolor{red}{-0.40\%} & \textcolor{red}{-0.32\%} & \textcolor{red}{-0.50\%} \\
+        \hline
+        $\gamma=3$ & \textcolor{red}{-0.17\%} & \textcolor{red}{-0.30\%} & \textcolor{red}{-0.26\%} & \textcolor{red}{-0.41\%} & \textcolor{red}{-0.21\%} & \textcolor{red}{-0.50\%} & \textcolor{red}{-0.29\%} & \textcolor{red}{-0.41\%} & \textcolor{red}{-0.23\%} & \textcolor{red}{-0.41\%} \\
+         \hline
+         \hline
+         average & \textcolor{red}{-0.07\%} & \textcolor{red}{-0.10\%} & \textcolor{red}{-0.35\%} & \textcolor{red}{-0.51\%} & \textcolor{red}{-0.29\%} & \textcolor{red}{-0.45\%} & \textcolor{red}{-0.16\%} & \textcolor{red}{-0.25\%} & \textbf{\textcolor{red}{-0.22\%}} & \textbf{\textcolor{red}{-0.33\%}}\\
+         \hline
+    \end{tabular}}
+\end{table}
+
+
+\begin{table}[ht]
+    \centering
+    \caption{Effects on F1 score and classification accuracy of a decision Tree model trained with the Random Forest dataset}
+    \label{tab:rf_german_diff}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{|c|rr|rr|rr|rr||rr|}
+    \hline
+        &  \multicolumn{2}{c|}{$\xi=1$} &  \multicolumn{2}{c|}{$\xi=2$} &  \multicolumn{2}{c|}{$\xi=4$} &  \multicolumn{2}{c||}{$\xi=6$} & \multicolumn{2}{c|}{average} \\
+        & F1 & acc. & F1 & acc. & F1 & acc. & F1 & acc.& F1 & acc. \\
+        \hline
+         $\gamma=12$ & \textcolor{red}{-0.47\%} & \textcolor{red}{-0.70\%} & \textcolor{red}{-0.81\%} & \textcolor{red}{-1.20\%} & \textcolor{red}{-0.07\%} & \textcolor{red}{-0.31\%} & \textcolor{red}{-0.21\%} & \textcolor{red}{-0.50\%} & \textcolor{red}{-0.39\%} & \textcolor{red}{-0.68\%}\\
+        \hline
+         $\gamma=9$ & \textcolor{red}{-0.50\%} & \textcolor{red}{-0.80\%} & \textcolor{red}{-0.34\%} & \textcolor{red}{-0.70\%} & \textcolor{red}{-0.31\%} & \textcolor{red}{-0.50\%} & \textcolor{red}{-0.35\%} & \textcolor{red}{-0.61\%} & \textcolor{red}{-0.38\%} & \textcolor{red}{-0.62\%} \\
+        \hline
+         $\gamma=6$ & \textcolor{red}{-0.82\%} & \textcolor{red}{-1.30\%} & \textcolor{red}{-0.42\%} & \textcolor{red}{-0.90\%} & \textcolor{red}{-0.44\%} & \textcolor{red}{-0.70\%} & \textcolor{red}{-0.30\%} & \textcolor{red}{-0.41\%} & \textcolor{red}{-0.50\%} & \textcolor{red}{-0.83\%}\\
+        \hline
+         $\gamma=3$ & \textcolor{red}{-0.79\%} & \textcolor{red}{-1.40\%} & \textcolor{red}{-0.78\%} & \textcolor{red}{-1.30\%} & \textcolor{red}{-1.23\%} & \textcolor{red}{-2.10\%} & \textcolor{red}{-0.85\%} & \textcolor{red}{-1.20\%} & \textcolor{red}{-0.91\%} & \textcolor{red}{-1.50\%} \\
+        \hline
+        \hline
+        average & 
+        \textcolor{red}{-0.65\%} & \textcolor{red}{-1.05\%} & \textcolor{red}{-0.59\%} & \textcolor{red}{-1.03\%} & \textcolor{red}{-0.51\%} & \textcolor{red}{-0.90\%} & \textcolor{red}{-0.43\%} & \textcolor{red}{-0.68\%} & \textbf{\textcolor{red}{-0.54\%}} & \textbf{\textcolor{red}{-0.91\%}} \\
+        \hline
+    \end{tabular}}
+\end{table}
+
+Similar to the Forest Cover Type dataset and Adult dataset, we can note that there are very small effects on the classification accuracy and F1 score using German Credit dataset. 
+
+In experiments, the classification accuracy and F1 score generally slightly decrease for smaller $\gamma$, i.e. by introducing more error, which is expected. 
+The effect of parameter $\xi$ is not obvious in all of the cases. We now have a mixture of numerical and non-numerical values. We have discussed in the previous sections that $\xi$ affects the performance when numerical data is used, while with non-numerical it is not the case. 
+For example, results from Decision Tree in \Cref{tab:dt_german_diff} show the decrease in F1 and accuracy for larger $\xi$, while the results from Logistic Regression in \Cref{tab:lr_german_diff} do not show such relation.
+
+Generally, bigger errors introduced by fingerprinting using the naive technique for categorical data did not significantly affect the performance of any of the classifiers. 
+
+\paragraph{}
+We further run experiments to analyse the second proposed technique for fingerprinting the categorical type of data. 
+German Credit Data is fingerprinted using the approach of finding a fixed number of neighbours, with $k=10$. 
+We use the same set values for parameters $\xi$ and $\gamma$ as in the previous experiments. 
+We trained the Logistic Regression and the Random Forest models. The differences of the performance measures, classification accuracy and F1 score, are shown in \Cref{tab:lr_german_diff_novel,tab:rf_german_diff_novel}.
+
+
+\begin{table}[ht]
+    \centering
+    \caption{Effects on F1 score and classification accuracy of a Logistic Regression model trained with the German Credit dataset fingerprinted with the neighbourhood-based technique}
+    \label{tab:lr_german_diff_novel}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{|c|rr|rr|rr|rr||rr|}
+    \hline
+        &  \multicolumn{2}{c|}{$\xi=1$} &  \multicolumn{2}{c|}{$\xi=2$} &  \multicolumn{2}{c|}{$\xi=4$} &  \multicolumn{2}{c||}{$\xi=6$} & \multicolumn{2}{c|}{average} \\
+        & F1 & acc. & F1 & acc. & F1 & acc. & F1 & acc. & F1 & acc. \\
+        \hline
+         $\gamma=12$ & \textcolor{red}{-0.19\%} & \textcolor{red}{-0.20\%} & +0.03\% & +0.09\% & 0\% & \textcolor{red}{-0.01\%} & \textcolor{red}{-0.19\%} & \textcolor{red}{-0.30\%} & \textcolor{red}{-0.09\%} & \textcolor{red}{-0.11\%}\\
+\hline
+ $\gamma=9$ & \textcolor{red}{-0.24\%} & \textcolor{red}{-0.30\%} & \textcolor{red}{-0.23\%} & \textcolor{red}{-0.30\%} & 0\% & 0\% & \textcolor{red}{-0.34\%} & \textcolor{red}{-0.50\%} & \textcolor{red}{-0.20\%} & \textcolor{red}{-0.28\%} \\
+\hline
+ $\gamma=6$ & \textcolor{red}{-0.47\%} & \textcolor{red}{-0.60\%} & \textcolor{red}{-0.16\%} & \textcolor{red}{-0.31\%} & \textcolor{red}{-0.28\%} & \textcolor{red}{-0.41\%} & \textcolor{red}{-0.93\%} & \textcolor{red}{-1.31\%} & \textcolor{red}{-0.46\%} & \textcolor{red}{-0.66\%} \\
+\hline
+ $\gamma=3$ & \textcolor{red}{-0.65\%} & \textcolor{red}{-0.90\%} & \textcolor{red}{-0.33\%} & \textcolor{red}{-0.60\%} & +0.13\% & +0.09\% & \textcolor{red}{-0.07\%} & \textcolor{red}{-0.20\%} & \textcolor{red}{-0.23\%} & \textcolor{red}{-0.40\%}\\
+\hline
+\hline
+average & \textcolor{red}{-0.39\%} & \textcolor{red}{-0.50\%} & \textcolor{red}{-0.17\%} & \textcolor{red}{-0.28\%} & \textcolor{red}{-0.04\%} & \textcolor{red}{-0.08\%} & \textcolor{red}{-0.38\%} & \textcolor{red}{-0.58\%} & \textcolor{red}{\textbf{-0.25\%}} & \textcolor{red}{\textbf{-0.36\%}} \\
+\hline
+    \end{tabular}}
+\end{table}
+
+
+\begin{table}[ht]
+    \centering
+    \caption{Effects on F1 score and classification accuracy of a Random Forest model trained with the German Credit dataset fingerprinted with the neighbourhood-based technique}
+    \label{tab:rf_german_diff_novel}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{|c|rr|rr|rr|rr||rr|}
+    \hline
+        &  \multicolumn{2}{c|}{$\xi=1$} &  \multicolumn{2}{c|}{$\xi=2$} &  \multicolumn{2}{c|}{$\xi=4$} &  \multicolumn{2}{c||}{$\xi=6$} & \multicolumn{2}{c|}{average}  \\
+        & F1 & acc. & F1 & acc. & F1 & acc. & F1 & acc.& F1 & acc. \\
+        \hline
+         $\gamma=12$ & \textcolor{red}{-0.27\%} & \textcolor{red}{-0.60\%} & \textcolor{red}{-0.16\%} & \textcolor{red}{-0.50\%} & \textcolor{red}{-0.57\%} & \textcolor{red}{-1.10\%} & \textcolor{red}{-0.43\%} & \textcolor{red}{-1.00\%} & \textcolor{red}{-0.36\%} & \textcolor{red}{-0.80\%}\\
+         
+    \hline
+    $\gamma=9$ & \textcolor{red}{-0.33\%} & \textcolor{red}{-0.60\%} & \textcolor{red}{-0.36\%} & \textcolor{red}{-0.70\%} & \textcolor{red}{-0.45\%} & \textcolor{red}{-0.90\%} & \textcolor{red}{-0.48\%} & \textcolor{red}{-0.90\%} & \textcolor{red}{-0.41\%} & \textcolor{red}{-0.78\%}\\
+\hline
+$\gamma=6$ & \textcolor{red}{-0.56\%} & \textcolor{red}{-1.00\%} & \textcolor{red}{-0.22\%} & \textcolor{red}{-0.40\%} & \textcolor{red}{-0.73\%} & \textcolor{red}{-1.31\%} & \textcolor{red}{-0.41\%} & \textcolor{red}{-0.90\%} & \textcolor{red}{-0.48\%} & \textcolor{red}{-0.90\%}\\
+\hline
+$\gamma=3$ & \textcolor{red}{-0.65\%} & \textcolor{red}{-1.10\%} & \textcolor{red}{-0.95\%} & \textcolor{red}{-1.90\%} & \textcolor{red}{-0.40\%} & \textcolor{red}{-0.90\%} & +0.01 & \textcolor{red}{-0.20\%} & \textcolor{red}{-0.50\%} & \textcolor{red}{-1.03\%}\\
+\hline
+\hline
+average & \textcolor{red}{-0.45\%} & \textcolor{red}{-0.82\%} & \textcolor{red}{-0.42\%} & \textcolor{red}{-0.88\%} & \textcolor{red}{-0.54\%} & \textcolor{red}{-1.05\%} & \textcolor{red}{-0.33\%} & \textcolor{red}{-0.75\%} & \textcolor{red}{\textbf{-0.44\%}} & \textcolor{red}{\textbf{-0.88\%}} \\
+\hline
+    \end{tabular}}
+\end{table}
+
+The results are, generally, very similar to the results of the naive fingerprinting technique. 
+The decrease in performance is in the range of approximately $-1\%$ for both classification accuracy and F1 score. 
+The Logistic Regression gives overall slightly worse results in this case, while for the Random Forest the performance is slightly better compared to the naive technique. 
+The performance follows the same trend of a decrease when more marks are embedded in the data. See, for example, the last column in \Cref{tab:rf_german_diff_novel} where we recorded the average F1 and accuracy decrease for different values of $\xi$. 
+The difference is larger for smaller values of $\gamma$, i.e. more marks in the data. 

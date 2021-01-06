@@ -1,0 +1,146 @@
+% Adult data
+\subsection{Adult (Census Data)}
+We make the set of experiments using the Adult dataset. The dataset is mostly composed of categorical values, thus we use the fingerprinting scheme for categorical data from \Cref{subsec:fingerprinting-scheme-categorical}.
+The target of the classification task is \textit{income}.
+All other attributes (including numerical, although we do not fingerprint them) are used for as an input for a classifier.
+We use Decision Tree, k-NN, Logistic Regression and Gradient Boosting. The hyperparameters are set as follows:
+    \begin{itemize}
+        \item k-NN: $n\_neighbors=19$
+        \item Logistic Regression: $solver=liblinear$, $C=20$
+        \item Random Forest: $n\_estimators=200$, $max\_depth=15$, $criterion=gini$
+        \item Gradient Boosting: $n\_estimators:=40$, $max\_depth=8$, $loss=deviance$, $criterion=mse$
+    \end{itemize}
+
+The differences in F1 and accuracy scores (on a scale $[0,100]\%$) between original and fingerprinted Adult dataset for Decision Tree, k-NN, Logistic Regression, Random Forest and Gradient Boosting are shown in \Cref{tab:knn_adult_diff,tab:lr_adult_diff,tab:rf_adult_diff,tab:gb_adult_diff}.
+
+\begin{table}[ht]
+    \centering
+    \caption{Effects on F1 score and classification accuracy of a k-NN model trained with the Adult dataset}
+    \label{tab:knn_adult_diff}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{|c|rr|rr|rr|rr||rr|}
+    \hline
+        & \multicolumn{2}{c|}{$\xi=1$} &  \multicolumn{2}{c|}{$\xi=2$} &  \multicolumn{2}{c|}{$\xi=4$} &  \multicolumn{2}{c||}{$\xi=6$} &  \multicolumn{2}{c|}{average} \\
+        & F1 & acc. & F1 & acc. & F1 & acc. & F1 & acc. & F1 & acc.\\
+        \hline
+         $\gamma=50$ & +0.05\% & +0.03\% & \textcolor{red}{-0.10\%} & \textcolor{red}{-0.05\%} & \textcolor{red}{-0.06\%} & \textcolor{red}{-0.02\%} & \textcolor{red}{-0.02\%} & +0.01\% & \textcolor{red}{-0.03\%} & \textcolor{red}{-0.01\%}\\
+         \hline
+         $\gamma=25$ & \textcolor{red}{-0.10\%} & \textcolor{red}{-0.05\%} & +0.05\% & +0.02\% & +0.07\% & +0.03\% & \textcolor{red}{-0.02\%} & +0.03\% & 0\% & \textcolor{red}{-0.01\%} \\
+         \hline
+         $\gamma=12$ & \textcolor{red}{-0.32\%} & \textcolor{red}{-0.19\%} & \textcolor{red}{-0.10\%} & \textcolor{red}{-0.06\%} & +0.02\% & +0.03\% & \textcolor{red}{-0.20\%} & \textcolor{red}{-0.04\%} & \textcolor{red}{-0.15\%} & \textcolor{red}{-0.07\%}\\
+         \hline
+         $\gamma=6$ & \textcolor{red}{-0.70\%} & \textcolor{red}{-0.42\%} & \textcolor{red}{-0.50\%} & \textcolor{red}{-0.22\%} & \textcolor{red}{-0.36\%} & \textcolor{red}{-0.15\%} & \textcolor{red}{-0.60\%} & \textcolor{red}{-0.21\%} & \textcolor{red}{-0.54\%} & \textcolor{red}{-0.25\%}\\
+         \hline
+         $\gamma=3$ & \textcolor{red}{-1.79\%} & \textcolor{red}{-1.02\%} & \textcolor{red}{-0.70\%} & \textcolor{red}{-0.36\%} & \textcolor{red}{-0.61\%} & \textcolor{red}{-0.22\%} & \textcolor{red}{-0.81\%} & \textcolor{red}{-0.32\%} & \textcolor{red}{-0.98\%} & \textcolor{red}{-0.48\%}\\
+         \hline
+         \hline
+         average & \textcolor{red}{-0.57\%} & \textcolor{red}{-0.33\%} & \textcolor{red}{-0.27\%} & \textcolor{red}{-0.13\%} & \textcolor{red}{-0.19\%} & \textcolor{red}{-0.07\%} & \textcolor{red}{-0.33\%} & \textcolor{red}{-0.11\%} & \textbf{\textcolor{red}{-0.34\%}} & \textbf{\textcolor{red}{-0.16\%}}  \\
+         \hline
+    \end{tabular}}
+\end{table}
+
+
+\begin{table}[ht]
+    \centering
+    \caption{Effects on F1 score and classification accuracy of a Logistic Regression model trained with the Adult dataset}
+    \label{tab:lr_adult_diff}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{|c|rr|rr|rr|rr||rr|}
+    \hline
+        & \multicolumn{2}{c|}{$\xi=1$} &  \multicolumn{2}{c|}{$\xi=2$} &  \multicolumn{2}{c|}{$\xi=4$} &  \multicolumn{2}{c||}{$\xi=6$} & 
+        \multicolumn{2}{c|}{average}\\
+        & F1 & acc. & F1 & acc. & F1 & acc. & F1 & acc. & F1 & acc. \\
+        \hline
+         $\gamma=50$ & \textcolor{red}{-0.15\%} & \textcolor{red}{-0.07\%} & \textcolor{red}{-0.02\%} & \textcolor{red}{-0.01\%} & \textcolor{red}{-0.07\%} & \textcolor{red}{-0.03\%} & \textcolor{red}{-0.03\%} & \textcolor{red}{-0.02\%} & \textcolor{red}{-0.07\%} & \textcolor{red}{-0.03\%}\\
+        \hline
+         $\gamma=25$ & \textcolor{red}{-0.25\%} & \textcolor{red}{-0.14\%} & \textcolor{red}{-0.13\%} & \textcolor{red}{-0.06\%} & \textcolor{red}{-0.10\%} & \textcolor{red}{-0.06\%} & \textcolor{red}{-0.14\%} & \textcolor{red}{-0.06\%} & \textcolor{red}{-0.16\%} & \textcolor{red}{-0.08\%}\\
+        \hline
+         $\gamma=12$ & \textcolor{red}{-0.46\%} & \textcolor{red}{-0.22\%} & \textcolor{red}{-0.27\%} & \textcolor{red}{-0.12\%} & \textcolor{red}{-0.12\%} & \textcolor{red}{-0.08\%} & \textcolor{red}{-0.39\%} & \textcolor{red}{-0.15\%} & \textcolor{red}{-0.31\%} & \textcolor{red}{-0.14\%}\\
+        \hline
+         $\gamma=6$ & \textcolor{red}{-0.68\%} & \textcolor{red}{-0.38\%} & \textcolor{red}{-0.41\%} & \textcolor{red}{-0.22\%} & \textcolor{red}{-0.46\%} & \textcolor{red}{-0.19\%} & \textcolor{red}{-0.80\%} & \textcolor{red}{-0.33\%} & \textcolor{red}{-0.59\%} & \textcolor{red}{-0.28\%}\\
+        \hline
+         $\gamma=3$ & \textcolor{red}{-2.12\%} & \textcolor{red}{-1.01\%} & \textcolor{red}{-1.08\%} & \textcolor{red}{-0.52\%} & \textcolor{red}{-0.75\%} & \textcolor{red}{-0.32\%} & \textcolor{red}{-1.33\%} & \textcolor{red}{-0.62\%} & \textcolor{red}{-1.32\%} & \textcolor{red}{-0.62\%}\\
+        \hline
+        \hline
+        average & \textcolor{red}{-0.73\%} & \textcolor{red}{-0.36\%} & \textcolor{red}{-0.38\%} & \textcolor{red}{-0.19\%} & \textcolor{red}{-0.25\%} & \textcolor{red}{-0.14\%} & \textcolor{red}{-0.54\%} & \textcolor{red}{-0.24\%} & \textbf{\textcolor{red}{-0.49\%}} & \textbf{\textcolor{red}{-0.23\%}} \\
+        \hline
+    \end{tabular}}
+\end{table}
+
+
+\begin{table}[ht]
+    \centering
+    \caption{Effects on F1 score and classification accuracy of a Random Forest model trained with the Adult dataset}
+    \label{tab:rf_adult_diff}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{|c|rr|rr|rr|rr||rr|}
+    \hline
+        & \multicolumn{2}{c|}{$\xi=1$} &  \multicolumn{2}{c|}{$\xi=2$} &  \multicolumn{2}{c|}{$\xi=4$} &  \multicolumn{2}{c||}{$\xi=6$} & \multicolumn{2}{c|}{average}\\
+        & F1 & acc. & F1 & acc. & F1 & acc. & F1 & acc. & F1 & acc. \\
+        \hline
+         $\gamma=50$  & \textcolor{red}{-0.04\%} & +0.06\% & \textcolor{red}{-0.40\%} & \textcolor{red}{-0.10\%} & \textcolor{red}{-0.02\%} & +0.02\% & \textcolor{red}{-0.37\%} & \textcolor{red}{-0.09\%} & \textcolor{red}{-0.21\%} & \textcolor{red}{-0.03\%}\\
+        \hline
+         $\gamma=25$ & \textcolor{red}{-0.28\%} & \textcolor{red}{-0.13\%} & \textcolor{red}{-0.20\%} & \textcolor{red}{-0.03\%} & \textcolor{red}{-0.29\%} & \textcolor{red}{-0.08\%} & \textcolor{red}{-0.56\%} & \textcolor{red}{-0.15\%} & 
+         \textcolor{red}{-0.33\%} & \textcolor{red}{-0.10\%} \\
+        \hline
+         $\gamma=12$ & \textcolor{red}{-0.59\%} & \textcolor{red}{-0.23\%} & \textcolor{red}{-0.63\%} & \textcolor{red}{-0.23\%} & \textcolor{red}{-0.13\%} & +0.02\% & \textcolor{red}{-0.34\%} & \textcolor{red}{-0.09\%} & \textcolor{red}{-0.42\%} & \textcolor{red}{-0.13\%}\\
+        \hline
+         $\gamma=6$ & \textcolor{red}{-0.68\%} & \textcolor{red}{-0.31\%} & \textcolor{red}{-0.66\%} & \textcolor{red}{-0.20\%} & \textcolor{red}{-0.33\%} & \textcolor{red}{-0.08\%} & \textcolor{red}{-0.76\%} & \textcolor{red}{-0.24\%} & \textcolor{red}{-0.61\%} & \textcolor{red}{-0.27\%}\\
+        \hline
+         $\gamma=3$ & \textcolor{red}{-2.26\%} & \textcolor{red}{-1.02\%} & \textcolor{red}{-1.04\%} & \textcolor{red}{-0.37\%} & \textcolor{red}{-1.24\%} & \textcolor{red}{-0.40\%} & \textcolor{red}{-1.01\%} & \textcolor{red}{-0.35\%} & \textcolor{red}{-1.39\%} & \textcolor{red}{-0.54\%}\\
+        \hline
+        \hline
+        average & \textcolor{red}{-0.77\%} & \textcolor{red}{-0.33\%} & \textcolor{red}{-0.59\%} & \textcolor{red}{-0.19\%} & \textcolor{red}{-0.40\%} & \textcolor{red}{-0.10\%} & \textcolor{red}{-0.61\%} & \textcolor{red}{-0.18\%} & \textbf{\textcolor{red}{-0.69\%}} & \textbf{\textcolor{red}{-0.20\%}} \\
+        \hline
+    \end{tabular}}
+\end{table}
+
+
+
+\begin{table}[ht]
+    \centering
+    \caption{Effects on F1 score and classification accuracy of a Gradient Boosting model trained with the Adult dataset}
+    \label{tab:gb_adult_diff}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{|c|rr|rr|rr|rr||rr|}
+    \hline
+        & \multicolumn{2}{c|}{$\xi=1$} &  \multicolumn{2}{c|}{$\xi=2$} &  \multicolumn{2}{c|}{$\xi=4$} &  \multicolumn{2}{c||}{$\xi=6$} & \multicolumn{2}{c|}{average} \\
+        & F1 & acc. & F1 & acc. & F1 & acc. & F1 & acc. & F1 & acc.\\
+        \hline
+         $\gamma=50$ & \textcolor{red}{-0.12\%} & \textcolor{red}{-0.06\%} & \textcolor{red}{-0.32\%} & \textcolor{red}{-0.16\%} & +0.02\% & \textcolor{red}{-0.01\%} & \textcolor{red}{-0.17\%} & \textcolor{red}{-0.07\%} &
+         \textcolor{red}{-0.15\%} & \textcolor{red}{-0.08\%}\\
+         \hline 
+         $\gamma=25$ & \textcolor{red}{-0.40\%} & \textcolor{red}{-0.19\%} & \textcolor{red}{-0.43\%} & \textcolor{red}{-0.20\%} & \textcolor{red}{-0.13\%} & \textcolor{red}{-0.08\%} & \textcolor{red}{-0.30\%} & \textcolor{red}{-0.10\%} &
+         \textcolor{red}{-0.32\%} & \textcolor{red}{-0.14\%}\\
+         \hline 
+         $\gamma=12$ & \textcolor{red}{-0.71\%} & \textcolor{red}{-0.34\%} & \textcolor{red}{-0.51\%} & \textcolor{red}{-0.18\%} & \textcolor{red}{-0.42\%} & \textcolor{red}{-0.18\%} & \textcolor{red}{-0.29\%} & \textcolor{red}{-0.11\%} &
+         \textcolor{red}{-0.48\%} & \textcolor{red}{-0.20\%}\\
+         \hline 
+         $\gamma=6$ & \textcolor{red}{-0.85\%} & \textcolor{red}{-0.45\%} & \textcolor{red}{-0.74\%} & \textcolor{red}{-0.35\%} & \textcolor{red}{-0.39\%} & \textcolor{red}{-0.20\%} & \textcolor{red}{-0.69\%} & \textcolor{red}{-0.30\%} &
+         \textcolor{red}{-0.67\%} & \textcolor{red}{-0.33\%}\\
+         \hline 
+         $\gamma=3$ & \textcolor{red}{-2.60\%} & \textcolor{red}{-1.22\%} & \textcolor{red}{-1.18\%} & \textcolor{red}{-0.59\%} & \textcolor{red}{-0.76\%} & \textcolor{red}{-0.36\%} & \textcolor{red}{-0.59\%} & \textcolor{red}{-0.27\%} & 
+         \textcolor{red}{-1.28\%} & \textcolor{red}{-0.61\%} \\
+         \hline
+         \hline
+         average & \textcolor{red}{-0.94\%} & \textcolor{red}{-0.45\%} & \textcolor{red}{-0.64\%} & \textcolor{red}{-0.30\%} & \textcolor{red}{-0.34\%} & \textcolor{red}{-0.17\%} & \textcolor{red}{-0.41\%} & \textcolor{red}{-0.17\%} & \textbf{\textcolor{red}{-0.58\%}} & \textbf{\textcolor{red}{-0.27\%}}\\
+         \hline
+    \end{tabular}}
+\end{table}
+
+Overall, each classifier shows a decrease in performance when the fingerprint is applied. 
+Except for a few cases where the performance slightly improves, both F1 and accuracy decrease up to approximately 2\%. 
+The average difference for each classifier can be seen in the respective table in the rightmost cell of the last row in bold characters. 
+The largest average difference for the entire classifier is the change in F1 score of Gradient Boosting, -0.58\% (\Cref{tab:gb_adult_diff}). Therefore, we can argue that changes in F1 and accuracy in this range are rather acceptable. This is, of course, dependable on the use case. However, we need to consider that fingerprinting necessarily changes the values in the dataset and the performance can not be exactly the same as when the original dataset is used. 
+The occurrences of the positive differences (see, for example, \Cref{tab:lr_adult_diff}, $\gamma=50$, $\xi=1$) are random and minute, and therefore concluding that a fingerprint in the data improves the performance of the Machine Learning model is a rule for certain cases would be wrong.
+
+In the last row and the last column of every table, we calculate the average difference for the fixed $\xi$ or $\gamma$, respectively, to see the effects of these parameters more easily.
+It is hard to detect any pattern between average values of F1/accuracy and $\xi$ value for any of the classifiers. 
+This behaviour can be expected because bigger $\xi$ do not imply "more change" in values for this fingerprinting scheme compared to the schemes for numerical values.
+For instance, using $\xi=3$ in fingerprinting could change a value "9" to "13" (difference of 4), while using $\xi=1$ could only (and at most!) change it to "8" (difference of 1). 
+This behaviour does not apply to categorical data since the change from any categorical value to another is unit.
+Therefore, the effect of the parameter $\xi$ on the performance of a model trained using fingerprinted data in classification is random. 
+
+On the other hand, we can see the trend of a decrease in performance for smaller values of $\gamma$ in the last column of the tables. Both average F1 and accuracy gradually decrease for smaller $\gamma$, i.e. more marks in the dataset. It is the case for a majority of the particular cases with one fixed value of $\xi$. For example, the entire experimental results with Logistic Regression, in \Cref{tab:lr_adult_diff}, have a perfect inversely proportional relation between a value of $\gamma$ and absolute difference in F1 score or accuracy.
+
+On the Adult dataset we can conclude that, from the classification point of view, the utility of data is preserved after applying the proposed fingerprinting technique for categorical data. The performance drops are not significant and can be controlled by the parameter $\gamma$. 

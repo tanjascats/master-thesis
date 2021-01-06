@@ -1,0 +1,52 @@
+\chapter{Conclusion}\label{chapter:conclusion}
+This thesis elaborates the concept of fingerprinting relational databases. 
+We implement and analyse three fingerprinting techniques for relational data containing numerical values - AK Scheme, Block Scheme and Two-level Fingerprinting Scheme. 
+The real-world datasets oftentimes contain non-numerical attributes. Therefore, we propose, implement and analyse two approaches for fingerprinting non-numerical data. The naive approach, inspired by techniques for fingerprinting numerical data, first converts the categorical attributes to numerical and then applies random marks on the chosen values. The second approach goes towards minimising contextual inconsistencies in the data after fingerprinting. 
+Even though this technique is not blind, it might be a better solution for fingerprinting data with correlated categorical attributes than marking the values randomly.
+
+We analyse the robustness of the techniques against the attacks. We analyse it theoretically and empirically, using the implemented techniques and a broad set of parameters. 
+Attacks that modify the dataset without any background knowledge of where the marks are embedded and without the access to other copies of fingerprinted data (e.g. subset attack, superset attack, bit-flipping attack), are shown to be avoidable by careful parameter tuning. In most of the cases, the robustness is increased by increasing the number of marks in the data. 
+If a smaller dataset is being fingerprinted, a fingerprinting scheme that creates shorter fingerprints is more robust. 
+
+The AK Scheme appears to be the most robust technique among the analysed ones. This is beneficial for our choice that the proposed scheme for categorical data follows the same steps as the AK Scheme. 
+The Two-level fingerprinting technique is very useful because of the verification of the ownership and the source of the leakage in two separate processes. 
+The ownership verification level is much more robust to any kind of attack, which allows the owner to prove ownership even in cases when the exact fingerprint of the receiver cannot be extracted.
+The Block Scheme is inspired by a useful fingerprinting technique for fingerprinting images, however, does not appear to be very robust in its adaptation to fingerprinting technique for relational datasets. 
+The proposed technique for categorical data is less robust against the attacks than AK Scheme or Two-level Scheme, however still applicable.
+
+We further analyse how the modifications in data affect its utility. 
+The modifications in the mean and variance of the attributes are rather minute. More marks in data and more allowed bits for embedding the mark result in bigger variance errors.
+The utility is further measured in the assumed scenario where the fingerprinted data is used for training a Machine Learning model that is making some prediction.
+We use a variety of Machine Learning classifiers, including Decision Tree, Logistic Regression, k-NN, Random Forest and Gradient Boosting, and experiment with three different datasets. 
+The resulting decrease of performance when compared to the model trained with original data is around 1\%, mostly less (assuming the accuracy and F1 score are measured in the range [0,100]\%). Therefore, the predictions are rather accurate when the fingerprinted data is used.
+
+The parameters that would, for example, increase the robustness of the scheme, decrease the utility. 
+We show in \Cref{tab:parameters} the effects of the main fingerprinting parameters on different types of attacks and the utility. 
+
+\begin{table}[ht]
+    \caption{Impact of parameters on robustness against attacks resp. on data utility}
+    \label{tab:parameters}
+    \centering
+%    \renewcommand{\arraystretch}{1.5}
+    \setlength{\tabcolsep}{6pt}  % default something like 2pt in this template
+    \begin{tabular}{|l|c|c|c|c|c|}
+        \hline
+         $\bm{\uparrow}$ & $\omega$ & $\xi$ &  $\tau$ & $L$ & $N$  \\
+         \hline
+         Misdiagnosis false hit & $\bm{\uparrow}$ & & $\bm{\uparrow}$ & $\bm{\uparrow}$ & $\bm{\downarrow}$ \\
+         \hline
+         Subset Attack & $\bm{\uparrow}$ & & $\bm{\downarrow}$ & $\bm{\downarrow}$ & \\
+         \hline
+         Bit-flipping Attack & $\bm{\uparrow}$ & $\bm{\uparrow}$ & $\bm{\downarrow}$ & $\bm{\downarrow}$ & \\
+         \hline
+         Additive Attack & $\bm{\uparrow}$ & $\bm{\downarrow}$ & $\bm{\downarrow}$ & & \\
+         \hline
+         Utility & $\bm{\downarrow}$ & $\bm{\downarrow}$ & & & \\
+         \hline
+    \end{tabular}
+\end{table}
+
+For example, increasing the number of marks in the data $\omega$ would increase the scheme's robustness against misdiagnosis false hit, subset attack, bit-flipping attack and additive attack, while decreasing the utility. 
+Increasing the number of LSBs available for fingerprinting $\xi$, does not affect the robustness against misdiagnosis false hit and subset attack, increases robustness against bit-flipping attack, but decreases the robustness against the additive attack and the utility.
+
+We show that the fingerprint does not affect the utility of the data too much. However, it depends on the use case if these, although minor, effects are acceptable. 

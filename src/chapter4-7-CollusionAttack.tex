@@ -1,0 +1,76 @@
+\section{Collusion Attack} \label{subsec:collusion}
+
+Fingerprinting produces distinct copies of the data for each of the buyers. 
+This opens the possibility for multiple buyers to have access to each other's copies of the data, all fingerprinted with different fingerprints, and work in coalition in order to create a useful data copy that would not implicate any member of the coalition. 
+One possibility for the members of the coalition is to attempt to erase the fingerprint or to modify values such that detection algorithm implies an innocent buyer who is not a member of the coalition to be the traitor.
+Collusion attack is specific for fingerprinting, as opposed to other attacks discussed in this thesis that can be applied in the context of watermarking. 
+Collusion is studied extensively in the literature \cite{boneh1998collusion, guth1999error, pfitzmann1999coin, pfitzmann1996asymmetric, yacobi2001improved} and collusion resistant fingerprinting codes have been proposed such as one by Blakley et al. \cite{blakley1985fingerprinting}, by Guth and Pfitzmann \cite{blakley1985fingerprinting}, and probably the most well-know by Boneh and Shaw - \textit{BoSh} \cite{boneh1998collusion}.
+
+Boneh and Shaw \cite{boneh1998collusion} provide the definitions of collusion-secure codes and propose the methods for construction of codes and algorithm for dealing with collusion attacks. 
+The method can be used for fingerprinting any sort of digital data: documents, multimedia, software, etc. 
+The effectiveness of the approach is based on the \textit{Marking Assumption} that states that "the main property of the marks should be satisfied are that users cannot change the state of an undetected mark without rendering the object useless" \cite{boneh1998collusion}. The colluding buyers can detect only the fingerprint bits in which their copies differ, otherwise, the fingerprint cannot be detected. 
+For instance, two buyers with their fingerprinted dataset can fairly easily compare their datasets and remove or change the values that differ between the copies.
+
+The following definitions of collusion-secure codes are defined \cite{boneh1998collusion}:
+\begin{itemize}
+    \item \textbf{$c$-frameproof code} satisfy that no coalition of at most \textit{c} members can frame a user who is not part of the coalition. $c$-frameproof codes prevent this harder version of treason but do not assure that the traitor(s) will be found
+    
+    \item \textbf{totally $c$-secure code} is a code for which exist an algorithm that outputs a member of a coalition with at most $c$ members that generated an arbitrary code under the coalition. It is proven that for $c \geq 2$ the totally c-secure code does not exist.
+    
+    \item \textbf{$c$-secure code with $\epsilon$-error} is a relaxation of the previous - if the code is $c$-secure with $\epsilon$-error, then there exists an algorithm which outputs a member of coalition with at most $c$ members with probability $1-\epsilon$, $\epsilon \in [0,1]$. 
+\end{itemize}
+
+BoSh codes are designed to be $c$-secure with $\epsilon$-error. 
+Increasing $c$ or reducing $\epsilon$ provides better security definition, but results in longer codes.
+BoSh code is generated as a concatenation of $b$ code-words of size $(a-1)d$ from public "inner code" that is common for all buyers. 
+Therefore, the code has length $b(a-1)d$.
+Code words from the inner code are chosen according to the secret buyer-specific "outer code" and randomly permuted before the use. 
+$a$, $b$ and $d$ are code construction parameters (in \cite{boneh1998collusion} $n$, $L$ and $d$ respectively, but we change the notation due to overlapping with notation in this thesis).
+The parameter values are: $a=2c$, $b=2c\log(2N/\epsilon)$ and $d=2a^2 \log(4ab/\epsilon)$.
+It is required that the random permutation and random outer code for each buyer are kept secret from all buyers.
+The tracing algorithm takes as input pirated data under collusion attack and returns exactly one malicious buyer. 
+
+\paragraph{AK Scheme}
+AK insertion algorithm (\Cref{alg:AK-insertion}) is not secure against collusion attack. 
+Each fingerprint bit $f_i$ is embedded to the same place in every fingerprinted copy of the dataset since it only depends on parameters $\gamma$, $v$ and $\xi$ which are not buyer-specific, and owner's secret key $\mathcal{K}$.
+Assume that 3 buyers are in collusion and they extract following marks from the bits that differ within their copies: (1,0,1), (1,1,0) and (0,1,1). 
+They decide to change values according to the majority, so they come up with the new mark (1,1,1) that they use to create the pirated data. 
+Detection algorithm cannot match the new fingerprint to any of the members of the coalition. 
+Another option for members of the collusion is to produce a random mark, e.g. (0,0,1) which leads to the same outcome. 
+
+To create a collusion-resistant scheme, authors in \cite{li2005fingerprinting} propose the modified version of BoSh code that is adequate to be incorporated into AK Scheme. 
+The fingerprint in the proposed solution consists of two parts: (1) watermark which is the same for every buyer and computed from a hash function using owner's secret key, $\mathcal{H}(\mathcal{K})$, and (2) BoSh code. 
+Those two parts are concatenated to create the fingerprint.
+
+There are two main differences between BoSh code and proposed solution \cite{li2005fingerprinting}:
+\begin{enumerate}
+    \item Collusion-resistant AK Scheme does not require recording of secret outer code for every buyer as it is the case for BoSh codes. Storing any kind of secret buyer-specific information is already discussed to violate key-based property and as a reason for incorporating pseudo-random sequence generator in the context of a fingerprint. The outer code needs to be hidden from the buyers, but deterministic to the owner. Therefore, the outer code is in collusion-resistant AK Scheme generated using such pseudo-random sequence generator from the owner's secret key $\mathcal{K}$ and buyer's ID number.
+    
+    \item Similarly, the random permutation for all buyers needs to be stored in BoSh code setting. The purpose of the final random permutation in BoSh code is to hide which mark in dataset corresponds to which fingerprint bit. In AK Scheme this permutation is not necessary as the choice of fingerprint bit to be embedded is already random by the design of the insertion algorithm (lines 7 and 8 in \Cref{alg:AK-insertion}).
+    
+\end{enumerate}
+
+Insertion and detection algorithms of collusion-resistant AK Scheme are slightly modified insertion (\Cref{alg:AK-insertion}) and detection (\Cref{alg:AK-detection}) algorithms of AK. 
+The modifications in the insertion algorithm are as follows:
+\begin{enumerate}
+    \item Additional parameter $L_1$ represents the length of the first (watermarking) part of a fingerprint. $L=L_1+L_2$ ($L_2$ is the length of second part - BoSh code).
+    \item Generation of fingerprint replaced by concatenation of watermark part of the fingerprint and BoSh code.
+    \item Additional parameter $c$ - maximum coalition size
+    \item Additional parameter $\epsilon$ - maximum false detection rate in tracing a coalition
+\end{enumerate}
+The detection algorithm is modified such that it runs in two consecutive phases:
+\begin{enumerate}
+    \item \textbf{Watermark check} - in this part, the watermark part $\mathcal{F_1}$ of recovered fingerprint template $\mathcal{F}$ is checked against the inserted codeword. The algorithm returns \textit{none suspected} for a single bit mismatch. This phase serves as prevention from 100\% misdiagnosis false hit rate in cases where non-pirated data is the input of detection algorithm (because the following phase returns exactly one malicious buyer). 
+    \item \textbf{BoSh tracing algorithm} (from \cite{boneh1998collusion}) - if algorithm passes the first phase, this phase identifies exactly one malicious buyer.
+\end{enumerate}
+
+Authors of \cite{li2005fingerprinting} analyse the robustness rates of collusion-resistant AK Scheme and carry out the experimental results on scheme robustness.
+Following the proof from \cite{boneh1998collusion} that probability of BoSh tracing algorithm returning the buyer who is indeed a member of the coalition is greater than $1-\epsilon$, the false miss rate $fm$ and misattribution false hit $fh^A$ satisfy
+\begin{equation}
+    fm=fh^A \leq \epsilon
+\end{equation}
+The misdiagnosis false hit $fh^D$ when the detection algorithm is applied on unmarked dataset is
+\begin{equation}
+    fh^D=\prod_{i=0}^{L_1-1}B(\lfloor\tau\omega_i\rfloor;\omega_i,0.5)\leq \frac{1}{2^{L_1}})
+\end{equation}
+and it can be decreased exponentially by increasing $L_1$ ($fh^D \simeq0$ if $L_1 \gg 1$).

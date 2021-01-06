@@ -1,0 +1,40 @@
+\section{Additive Attack}
+Consider a scenario where the attacker tries to claim the ownership of the dataset by inserting an additional fingerprint in the bought dataset. We call this strategy an additive attack \cite{agrawal2003watermarking}. The competing ownership claims can be resolved if there exists at least one bit that both the owner and the attacker have marked, each with a different value. The way to resolve the ownership claim competition is to determine which owner's marks win, i.e. which mark has overwritten the other. The winning owner's mark is clearly inserted later, therefore his claim of ownership is false.
+
+Method for dealing with the false claims of ownership could be to ask both the owner and the attacker to produce the original dataset before it was fingerprinted and to demonstrate the presence of the fingerprint in each other's original datasets. 
+The owner will be able to demonstrate the presence of her fingerprint in the attacker's original unlike the attacker in the owner's original. 
+
+
+\subsection{AK Scheme}\label{subsubsec:additive-ak}
+In the AK Scheme, it is justified to conclude that the odds of finding such conflicting bits are low. 
+Suppose that the data fingerprinted by the owner is marked $\omega$ times with parameters $\gamma$, $v$ and $\xi$ and that the attacker performs the fingerprinting insertion algorithm with parameters $\gamma'$, $v'$ and $\xi'$. Under the usual probabilistic model of AK Scheme's bit-marking process, the probability that a specified bit marked by original fingerprint is also marked by the attacker is the product of probabilities that the tuple containing the bit is chosen for marking $(1/\gamma')$, that the attribute containing the bit is also chosen for marking $(1/v')$ and that the specified bit is chosen $(1/\xi')$. The probability that the attacker's mark is different from the original mark is 1/2 so that the overall probability that the specified bit is a conflict bit is $1/(2\gamma'v'\xi')$. The tuples are marked independently of each other, therefore the probability that the attack is successful, i.e. no conflicting bits are found, is
+\begin{equation}
+    P\{success|\omega\}=(1-\frac{1}{2\gamma'v'\xi'})^\omega
+\end{equation}
+
+For example, let the dataset have around 500,000 tuples and  $\omega=1000$. 
+Assume that attacker wants to increase his chances of success.
+If the attacker sets $\gamma'=10,000$ (a rather big value considering that it means that only 1/10,000 tuples will be marked), $v'=10$ and $\xi'=5$, then $P\{success|\omega\}=(1-10^{-6})^1000 \approx 0.999$.
+
+
+
+\subsection{Block Scheme}
+The solution from section \ref{subsubsec:additive-ak} is applicable to the block fingerprinting scheme as well. 
+Suppose that the attacker runs the fingerprint insertion algorithm with parameters $\beta'$, $\xi'$ and $v'$.  
+Let $1/\gamma'$ be the percentage of tuples marked by the attacker.
+Due to the uniform distribution of the marks in the Block Scheme, we can approximate the percentage $1/\gamma \approx (\xi v)/\beta^2$, assuming that there is in average no more than 1 mark in a single tuple.
+Let the data be marked $L\omega$ times in total by the owner.
+The probability that the additive attack is successful is then 
+
+\begin{equation}
+\begin{aligned}
+    P\{success|L\omega\}&=(1-\frac{1}{2\gamma'v'\xi'})^{L\omega} \\
+        &=(1-\frac{1}{2\frac{\beta'^2}{\xi'v'}v'\xi'})^{L\omega} \\
+        &=(1-\frac{1}{2\beta'^2})^{L\omega}
+\end{aligned}
+\end{equation}
+
+The success of the additive attack depends exponentially on $L\omega$.
+The attacker can increase his chances for success by increasing $\beta'$, however with $L\omega \gg \beta'$, the chances for the successful attack are low.
+For example, with $\beta'=30$ and $L\omega=10000$, $P\{success|L\omega\}=0.0039$.
+
